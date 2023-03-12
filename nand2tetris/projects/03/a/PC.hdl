@@ -19,14 +19,19 @@ CHIP PC {
     // Put your code here:
 
 
-    Mux16( a=outFoIn, b=in, sel=load, out=res0);
-
-    Not(in=load, out=load0);
-    And(a=load0, b=reset, out=reset0);
-
     Not16(in=in, out=notIn);
     And16(a=in, b=notIn, out=setIn0);
-    Mux16(a=res0, b=setIn0, sel=reset0, out=res1);
+    Mux16(a=in, b=setIn0, sel=reset, out=res0);
+
+
+
+
+    Not(in=reset, out=reset0);
+    And(a=load, b=reset0, out=load0);
+    Or(a=load0, b=reset, out=load1);
+    Mux16( a=outFoIn, b=res0, sel=load1, out=res1);
+
+    
 
     Or(a=load, b=reset, out=both);
     Not(in=both, out=out99);
