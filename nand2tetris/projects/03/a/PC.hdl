@@ -23,25 +23,24 @@ CHIP PC {
     And16(a=in, b=notIn, out=setIn0);
     Mux16(a=in, b=setIn0, sel=reset, out=res0);
 
-
-
-
     Not(in=reset, out=reset0);
-    And(a=load, b=reset0, out=load0);
-    Or(a=load0, b=reset, out=load1);
-    Mux16( a=outFoIn, b=res0, sel=load1, out=res1);
+    And(a=load, b=reset0, out=isload);
+
+    Mux16(a=res0, b=in, sel=isload, out=res1);
 
     
+    Or(a=reset, b=load, out=load0);
+    Not(in=load0, out=load0Out);
+    And(a=load0Out, b=inc, out=inc0);
+    Inc16(in=outFoIn, out=res2);
+    Mux16(a=res1, b=res2, sel=inc0, out=res3);
 
-    Or(a=load, b=reset, out=both);
-    Not(in=both, out=out99);
-    And(a=out99, b=inc, out=inc0);
 
-    Inc16(in=res1, out=inc1);
-    Mux16(a=res1, b=inc1, sel=inc0, out=res3);
+    Or(a=load0, b=inc, out=load1);
+    Mux16(a=outFoIn, b=res3, sel=load1, out=res4);
 
-    Or(a=reset, b=inc, out=loadr0);
-    Or(a=load, b=loadr0, out=loadr1);
-    Register(in=res3, load=loadr1,  out=out, out=outFoIn);
+
+
+    Register(in=res4, load=load1,  out=out, out=outFoIn);
 
 }
