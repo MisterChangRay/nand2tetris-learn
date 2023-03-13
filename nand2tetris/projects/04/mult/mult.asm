@@ -9,29 +9,25 @@
 // Put your code here.
 
 
-@i
-M=0
-@R2
-M=0
+
+M[16]=0
+M[2]=0
 
 (LOOP)
 
-@R0
-D=M
-@i
-D=D-M
+D=M[0]
+
+D=D-M[16]
 
 @LOOPEND
 D;JLE
 
+D=M[1]
+D=M[2]+D
+M[2]=D
 
-@R1
-D=M
-@R2
-M=M+D
-
-@i
-M=M+1
+D=M[16];
+M[16]=D+1
 
 @LOOP
 0;JMP
