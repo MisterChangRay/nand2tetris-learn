@@ -40,4 +40,22 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    // Nand(a=instruction[0], b=instruction[0], out=insType);
+
+
+    // 处理A指令
+    Not(in=instruction[0], out=loadA);
+    Register(in = instruction, load=loadA, out=regA);
+
+
+
+    Not(in=instruction[4], out=loadOfM)
+    
+
+    ALU(x=regA, y=regB, zx=instruction[5], nx=instruction[6], zy=instruction[7], ny=instruction[8], f=instruction[9], no=instruction[10], out=aluOut, zr=aluZr, ng= aluNg);
+
+
+
+
+
 }

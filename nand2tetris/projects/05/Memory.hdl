@@ -28,4 +28,36 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+
+    DMux(in=load,sel=address[14],a=loadRam, b=loadScreen1);
+    DMux(in=load,sel=address[13],a=loadScreen2, b=loadKeyboard );
+    And(a=loadScreen1, b=loadScreen2, out=loadScreen);
+
+
+    RAM16K(in=in, load=loadRam, address=address[0..13], out=out1);
+
+    DMux(in=loadScreen,sel=address[3],a=loadScreen11, b=loadScreen22);
+    RAM4K(in = in, load=loadScreen11, address=address[0..11], out=out2);
+    RAM4K(in = in, load=loadScreen22, address=address[0..11], out=out4);
+   
+
+    Mux16(a=out2, b=out4, sel=address[3], out=out3);
+
+    Register(in = in, load=loadKeyboard, out=out5);
+
+    Mux16(a=out1, b=out3, sel=address[14], out=out10);
+    And(a=address[14], b=address[13], out=outKeyboard);
+    Mux16(a=out10, b=out5, sel=outKeyboard, out=out13);
+
+
+    Not16(in=in, out=notin);
+    And16(a=in, b=notin, out=zeroin);
+
+    Or8Way(in=address[0..7], out=overload1);
+    Or8Way(in=address[5..12], out=overload2);
+    Or(a=overload1, b=overload2, out=overload3);
+
+    And(a=overload3, b=outKeyboard, out=overload);
+    Mux16(a=out13, b=zeroin, sel=overload, out=out);    
+
 }
