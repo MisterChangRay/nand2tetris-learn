@@ -40,22 +40,57 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
-    // Nand(a=instruction[0], b=instruction[0], out=insType);
+
+    Xor(a=reset,b=reset, out=zero);
+    Not(in=zero, out=one);
 
 
-    // 处理A指令
-    Not(in=instruction[0], out=loadA);
-    Register(in = instruction, load=loadA, out=regA);
+    // 处理C指令
+    Mux16(a=regAVal, b=inM, sel = instruction[12], out=regAForInput);
+
+    ALU(x=regDVal, y= regAForInput, 
+    zx=instruction[11], nx=instruction[10], 
+    zy=instruction[9], ny=instruction[8], 
+    f=instruction[7],  no=instruction[6], out=aluOut, zr=aluZr, ng= aluNg, out=outM);
 
 
+    Mux16(a=instruction , b=aluOut, sel=instruction[15], out=regAInVal);  
+    And(a=instruction[5], b=instruction[15], out=aload1)  ;
+    Not(in=instruction[15], out=instruction15);
+    Or(a=aload1, b=instruction15, out=aload)  ;
 
-    Not(in=instruction[4], out=loadOfM)
+    ARegister(in = regAInVal, load=aload, out=regAVal, out=jumpAddr, out[0..14]=addressM1, out[0..14]=addressM);
+
+
+    And(a=instruction[4], b=instruction[15], out=isLoadD);    
+    DRegister(in = aluOut, load=isLoadD, out=regDVal);
+
+
+    And(a=instruction[3], b=instruction[15], out=isLoadM, out=writeM);    
+    Memory(in=aluOut, load=isLoadM, address=addressM1);
     
 
-    ALU(x=regA, y=regB, zx=instruction[5], nx=instruction[6], zy=instruction[7], ny=instruction[8], f=instruction[9], no=instruction[10], out=aluOut, zr=aluZr, ng= aluNg);
+
+    And(a=instruction[1], b=aluZr, out=if1);
+    Mux(a=zero, b=one, sel=if1, out=load0);
+
+    And(a=instruction[2], b=aluNg, out=if2);
+    Mux(a=zero, b=one, sel=if2, out=load1);
+    Or(a=load0, b=load1, out=load01);
 
 
+    Or(a=aluZr, b=aluNg, out=gtr);
+    Not(in =gtr, out=outGT);
+    And(a=instruction[0], b=outGT, out=if3);
+    Mux(a=zero, b=one, sel=if3, out=load3);
 
+    Or(a=load01, b=load3, out=load012);
+
+    And(a=load012, b=instruction[15], out=isJmp);
+    Not(in=isJmp, out=inc0);
+    Mux16(a=outPc, b=jumpAddr, sel=isJmp, out=newOutPc);
+
+    PC(in=newOutPc, load=isJmp, inc=inc0, reset=reset, out=outPc, out[0..14]=pc);
 
 
 }
