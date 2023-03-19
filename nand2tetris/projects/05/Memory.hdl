@@ -29,30 +29,19 @@ CHIP Memory {
     PARTS:
     // Put your code here:
 
-    DMux(in=load,sel=address[14],a=loadRam, b=loadScreen1);
-    DMux(in=load,sel=address[13],a=loadScreen2, b=loadKeyboard );
-    And(a=loadScreen1, b=loadScreen2, out=loadScreen);
+    DMux4Way(in=load, sel=address[13..14], a=loadm1, b=loadm2, c= loadscreen, d=loadk);
 
-    RAM16K(in=in, load=loadRam, address=address[0..13], out=out1);
+    Or(a=loadm1, b=loadm2, out=loadm);
 
-    Screen(in=in, load=loadScreen, address=address[0..12], out=out2);
+    RAM16K(in=in, load=loadm, address=address[0..13], out=out1);
+
+    Screen(in=in, load=loadscreen, address=address[0..12], out=out2);
 
     Keyboard(out=out3);
 
 
-    Mux16(a=out1, b=out2, sel=address[14], out=out10);
-    And(a=address[14], b=address[13], out=outKeyboard);
-    Mux16(a=out10, b=out3, sel=outKeyboard, out=out13);
+    Mux4Way16(a=out1, b=out1, c=out2, d=out3, sel=address[13..14], out=out);
 
 
-    Not16(in=in, out=notin);
-    And16(a=in, b=notin, out=zeroin);
-
-    Or8Way(in=address[0..7], out=overload1);
-    Or8Way(in=address[5..12], out=overload2);
-    Or(a=overload1, b=overload2, out=overload3);
-
-    And(a=overload3, b=outKeyboard, out=overload);
-    Mux16(a=out13, b=zeroin, sel=overload, out=out);    
 
 }
