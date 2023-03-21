@@ -225,7 +225,7 @@ while parser.hasMoreCommands():
         writeline("{:0>16d}".format(int(bin(int(table.GetAddress(line)))[2:])))
       else :
         storePc = storePc + 1
-        print(line, storePc)
+        #print(line, storePc)
 
         table.addEntry(line, storePc)
         writeline("{:0>16d}".format(int(bin(int(table.GetAddress(line)))[2:])))
