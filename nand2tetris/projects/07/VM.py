@@ -1,3 +1,9 @@
+
+import sys
+import re
+import os
+from pathlib import Path
+
 class Parser:
 	def hasMoreCommands():
 		return
@@ -23,12 +29,43 @@ class CodeWriter:
 	def __init__(self):
 		return
 
-def sanfiles():
+
+def parseFile(file, output):
+	return
+
+def scanfiles(dir, output):
 	return
 
 
-def start():
+def start(srouceFileOrDir):
+	# file.write(stringb)
+
+	srouceFileOrDir = os.path.realpath(srouceFileOrDir)
+	if(srouceFileOrDir.endswith("\\")):
+		srouceFileOrDir = srouceFileOrDir[0: len(srouceFileOrDir)  - 1]
+
+	outputname = srouceFileOrDir[ srouceFileOrDir.index("\\"):]
+	if(os.path.isfile(srouceFileOrDir)):
+		outputname = srouceFileOrDir[ srouceFileOrDir.rfind("\\") + 1: len(srouceFileOrDir) - 3]
+	
+	outputname = outputname + ".asm"
+	outputfile = open(outputname, "w")
+
+
+	if(srouceFileOrDir.endswith("vm")):
+		parseFile(srouceFileOrDir, outputfile)
+	else:
+		scanfiles(srouceFileOrDir, outputfile)
+				
+
+	outputfile.close()
 	return
 
 
-start()
+if(len(sys.argv) == 1) :
+  print("not found source file to compiler!");
+  sys.exit();
+
+
+srouceFileOrDir  =sys.argv[1];
+start(srouceFileOrDir)
