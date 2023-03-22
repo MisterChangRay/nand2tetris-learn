@@ -31,9 +31,17 @@ class CodeWriter:
 
 
 def parseFile(file, output):
+	print(filename(file))
 	return
 
+def filename(file):
+	return Path(file).stem
+
 def scanfiles(dir, output):
+	for filepath,dirnames,filenames in os.walk(dir):
+		for filename in filenames:
+			if(filename.endswith(".vm")):
+				parseFile(os.path.join(filepath, filename), output)
 	return
 
 
@@ -47,13 +55,16 @@ def start(srouceFileOrDir):
 	outputname = srouceFileOrDir[ srouceFileOrDir.index("\\"):]
 	if(os.path.isfile(srouceFileOrDir)):
 		outputname = srouceFileOrDir[ srouceFileOrDir.rfind("\\") + 1: len(srouceFileOrDir) - 3]
+		if(False == srouceFileOrDir.endswith(".vm")) :
+			print("invalid file -> " + srouceFileOrDir)
+			return
 	
 	outputname = outputname + ".asm"
 	outputfile = open(outputname, "w")
 
 
-	if(srouceFileOrDir.endswith("vm")):
-		parseFile(srouceFileOrDir, outputfile)
+	if(os.path.isfile(srouceFileOrDir)):
+			parseFile(srouceFileOrDir, outputfile)
 	else:
 		scanfiles(srouceFileOrDir, outputfile)
 				
