@@ -147,18 +147,21 @@ class CodeWriter:
 		self.outline("D=D-M")
 		self.stackinc()
 		return
+
 	def stackinc(self):  ## 堆栈压入D数据
 		self.outline("@SP")
-		self.outline("M=M+1")
 		self.outline("A=M")
 		self.outline("M=D")
+
+		self.outline("@SP")
+		self.outline("M=M+1")
 		return
 	def  stackdec(self): ## 堆栈弹出到D
 		self.outline("@SP")
+		self.outline("M=M-1")
+
 		self.outline("A=M")
 		self.outline("D=M")
-		self.outline("@SP")
-		self.outline("M=M-1")
 		return
 
 	def writePushPop(self):
@@ -182,20 +185,25 @@ class CodeWriter:
 			return
 		if(self.parser.arg1() == "this" or self.parser.arg1() == "that"):
 			self.stackdec()
-			self.outline("R{0}=D".format(self.baseAddr[self.parser.arg1()]))
+			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()]))
+			self.outline("M=D")
 			return
 		if(self.parser.arg1() == "pointer" or self.parser.arg1() == "static" or self.parser.arg1() == "temp"):
 			self.stackdec()
-			self.outline("R{0}=D".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
+			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
+			self.outline("M=D")
 			return
 		if(self.parser.arg1() == "local" or self.parser.arg1() == "argument" ):
 			self.stackdec()
-			self.outline("R13=D")
+			self.outline("@R13")
+			self.outline("M=D")
 			self.outline("@{0}".format("LCL" if self.parser.arg1() == "local" else "ARG"))
 			self.outline("D=A")
 			self.outline("@{0}".format(self.parser.arg2()))
 			self.outline("A=D+A")
-			self.outline("M=R13")
+			self.outline("D=A")
+			self.outline("@R13")
+			self.outline("M=D")
 			return
 
 
@@ -211,10 +219,12 @@ class CodeWriter:
 			self.outline("D=A")
 			self.stackinc()
 		if(self.parser.arg1() == "this" or self.parser.arg1() == "that"):
-			self.outline("D=R{0}".format(self.baseAddr[self.parser.arg1()]))
+			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()]))
+			self.outline("D=M")
 			self.stackinc()
 		if(self.parser.arg1() == "pointer" or self.parser.arg1() == "static" or self.parser.arg1() == "temp"):
-			self.outline("D=R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
+			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
+			self.outline("D=M")
 			self.stackinc()
 		if(self.parser.arg1() == "local" or self.parser.arg1() == "argument" ):
 			self.outline("@{0}".format("LCL" if self.parser.arg1() == "local" else "ARG"))
@@ -239,11 +249,8 @@ class CodeWriter:
 			"memory":16384,
 
 
-
-			"argument":1,
-			# local 分配在堆里
-			"local":2048,
-
+			"local":3048,
+			"argument":2048,
 			"constant":2,
 			"this":3,
 			"that":4,
@@ -253,9 +260,24 @@ class CodeWriter:
 		self.output = output
 		self.parser = parser
 
-		# 初始化堆栈
+		# 初始化堆栈指针
 		self.outline("@256")
-		self.outline("SP=A")
+		self.outline("D=A")
+		self.outline("@SP")
+		self.outline("M=D")
+
+		# 初始化local指针
+		self.outline("@3048")
+		self.outline("D=A")
+		self.outline("@LCL")
+		self.outline("M=D")
+
+		# 初始化arguments指针
+		self.outline("@2048")
+		self.outline("D=A")
+		self.outline("@ARG")
+		self.outline("M=D")
+
 		return
 
 
