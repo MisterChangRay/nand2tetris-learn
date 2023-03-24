@@ -96,32 +96,125 @@ class CodeWriter:
 		if(self.parser.arg0().startswith("lt")) :
 			self.lt()
 			return
+		if(self.parser.arg0().startswith("and")) :
+			self.doand()
+			return
+		if(self.parser.arg0().startswith("or")) :
+			self.door()
+			return
+		if(self.parser.arg0().startswith("not")) :
+			self.donot()
+			return
+		
+	def nextIndex(self):
+		self.index = self.index + 1
+		return self.index
+
+	def doand(self):
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("M=D")
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("D=M&D")
+		self.stackinc()
+
+		return
+	def door(self):
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("M=D")
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("D=M|D")
+		self.stackinc()
+
+		return
+		
+	def donot(self):
+		self.stackdec()
+		self.outline("D=!D")
+		self.stackinc()
+		return
+
 
 	def eq(self):
-		self.outline("R14=0")
+		# use r14, defaul return false
+		self.outline("@R14")
+		self.outline("D=0")
+		self.outline("M=!D")
 
+		# get optation
 		self.stackdec()
-		self.outline("R13=D")
-		self.stackinc()
-		self.outline("D=R13-D")
-		self.outline("@{0}}".format(self.filename))
-		self.outline("D;JNE")
-		self.outline("@65535")
-		self.outline("D=A")
-		self.outline("(end0)")
+		self.outline("@R13")
+		self.outline("M=D")
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("D=M-D")
+
+
+		tag = "{0}.{1}".format(self.filename, self.nextIndex())
+		self.outline("@{0}".format(tag))
+		self.outline("D;JEQ")
+		self.outline("@R14")
+		self.outline("M=0")
+		self.outline("({0})".format(tag))
+
+		self.outline("@R14")
+		self.outline("D=M")
 		self.stackinc()
 
 		return
 	def gt(self):
+		# use r14, defaul return false
+		self.outline("@R14")
+		self.outline("D=0")
+		self.outline("M=!D")
+
+		# get optation
 		self.stackdec()
-		self.outline("R13=D")
-		self.stackinc()
-		self.outline("D=R13-D")
+		self.outline("@R13")
+		self.outline("M=D")
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("D=D-M")
+
+
+		tag = "{0}.{1}".format(self.filename, self.nextIndex())
+		self.outline("@{0}".format(tag))
+		self.outline("D;JGT")
+		self.outline("@R14")
+		self.outline("M=0")
+		self.outline("({0})".format(tag))
+
+		self.outline("@R14")
+		self.outline("D=M")
 		self.stackinc()
 		return
 	def lt(self):
+		# use r14, defaul return false
+		self.outline("@R14")
+		self.outline("D=0")
+		self.outline("M=!D")
+
+		# get optation
 		self.stackdec()
-		self.outline("D=-D")
+		self.outline("@R13")
+		self.outline("M=D")
+		self.stackdec()
+		self.outline("@R13")
+		self.outline("D=D-M")
+
+
+		tag = "{0}.{1}".format(self.filename, self.nextIndex())
+		self.outline("@{0}".format(tag))
+		self.outline("D;JLT")
+		self.outline("@R14")
+		self.outline("M=0")
+		self.outline("({0})".format(tag))
+
+		self.outline("@R14")
+		self.outline("D=M")
 		self.stackinc()
 		return
 	def neg(self):
@@ -241,6 +334,7 @@ class CodeWriter:
 
 	def __init__(self, filename, output, parser):
 		self.filename = filename
+		self.index = 0
 		self.baseAddr = {
 			"register":0,
 			"static":16,
@@ -332,7 +426,10 @@ def start(srouceFileOrDir):
 			parseFile(srouceFileOrDir, outputfile)
 	else:
 		scanfiles(srouceFileOrDir, outputfile)
-				
+	
+	outputfile.write("(PRO_END)\n");
+	outputfile.write("@PRO_END\n");
+	outputfile.write("0;JMP\n");
 
 	outputfile.close()
 	return
