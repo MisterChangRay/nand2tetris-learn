@@ -270,7 +270,7 @@ class CodeWriter:
 	def dopop(self):
 		if(self.parser.arg1() == "static"):
 			self.stackdec()
-			self.outline("@{0}.{1}", self.filename , self.parser.arg2())
+			self.outline("@{0}.{1}".format( self.filename , self.parser.arg2()))
 			self.outline("M=D")
 			return
 		if(self.parser.arg1() == "constant"):
@@ -306,7 +306,7 @@ class CodeWriter:
 	def dopush(self):
 
 		if(self.parser.arg1() == "static"):
-			self.outline("@{0}.{1}", self.filename , self.parser.arg2())
+			self.outline("@{0}.{1}".format( self.filename , self.parser.arg2()))
 			self.outline("D=M")
 			self.stackinc()
 			return
