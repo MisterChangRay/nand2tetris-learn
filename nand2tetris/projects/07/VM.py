@@ -276,7 +276,7 @@ class CodeWriter:
 		if(self.parser.arg1() == "constant"):
 			self.stackdec()
 			return
-		if(self.parser.arg1() == "this" or self.parser.arg1() == "that"):
+		if():
 			self.stackdec()
 			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()]))
 			self.outline("M=D")
@@ -286,16 +286,19 @@ class CodeWriter:
 			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
 			self.outline("M=D")
 			return
-		if(self.parser.arg1() == "local" or self.parser.arg1() == "argument" ):
-			self.stackdec()
+		if(self.parser.arg1() == "this" or self.parser.arg1() == "that" or 
+			self.parser.arg1() == "local" or self.parser.arg1() == "argument" ):
+
+			self.outline("@{0}".format(self.parser.arg2()))
+			self.outline("D=A")
+			self.outline("@{0}".format(self.mapping[ self.parser.arg1()]))
+			self.outline("D=M+D")
 			self.outline("@R13")
 			self.outline("M=D")
-			self.outline("@{0}".format("LCL" if self.parser.arg1() == "local" else "ARG"))
-			self.outline("D=A")
-			self.outline("@{0}".format(self.parser.arg2()))
-			self.outline("A=D+A")
-			self.outline("D=A")
+
+			self.stackdec()
 			self.outline("@R13")
+			self.outline("A=M")
 			self.outline("M=D")
 			return
 
@@ -311,19 +314,17 @@ class CodeWriter:
 			self.outline("@{0}".format( self.parser.arg2()))
 			self.outline("D=A")
 			self.stackinc()
-		if(self.parser.arg1() == "this" or self.parser.arg1() == "that"):
-			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()]))
-			self.outline("D=M")
-			self.stackinc()
 		if(self.parser.arg1() == "pointer" or self.parser.arg1() == "static" or self.parser.arg1() == "temp"):
 			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
 			self.outline("D=M")
 			self.stackinc()
-		if(self.parser.arg1() == "local" or self.parser.arg1() == "argument" ):
-			self.outline("@{0}".format("LCL" if self.parser.arg1() == "local" else "ARG"))
-			self.outline("D=A")
+		if(self.parser.arg1() == "local" or self.parser.arg1() == "argument" or
+			self.parser.arg1() == "this" or self.parser.arg1() == "that"):
+			
 			self.outline("@{0}".format(self.parser.arg2()))
-			self.outline("A=D+A")
+			self.outline("D=A")
+			self.outline("@{0}".format(self.mapping[ self.parser.arg1()]))
+			self.outline("A=M+D")
 			self.outline("D=M")
 			self.stackinc()
 			return
@@ -335,6 +336,12 @@ class CodeWriter:
 	def __init__(self, filename, output, parser):
 		self.filename = filename
 		self.index = 0
+		self.	mapping = {
+				"local" : "LCL",
+				"argument" : "ARG",
+				"this" : "THIS",
+				"that" : "THAT",
+		}
 		self.baseAddr = {
 			"register":0,
 			"static":16,
@@ -343,8 +350,11 @@ class CodeWriter:
 			"memory":16384,
 
 
-			"local":3048,
 			"argument":2048,
+			"thisBase": 2448,
+			"thatBase":2648,
+			"local":3248,
+
 			"constant":2,
 			"this":3,
 			"that":4,
@@ -355,24 +365,35 @@ class CodeWriter:
 		self.parser = parser
 
 		# 初始化堆栈指针
-		self.outline("@256")
+		self.outline("@{0}".format(self.baseAddr["stack"]))
 		self.outline("D=A")
 		self.outline("@SP")
 		self.outline("M=D")
 
-		# 初始化local指针
-		self.outline("@3048")
-		self.outline("D=A")
-		self.outline("@LCL")
-		self.outline("M=D")
+		# # 初始化local指针
+		# self.outline("@{0}".format(self.baseAddr["local"]))
+		# self.outline("D=A")
+		# self.outline("@LCL")
+		# self.outline("M=D")
 
-		# 初始化arguments指针
-		self.outline("@2048")
-		self.outline("D=A")
-		self.outline("@ARG")
-		self.outline("M=D")
+		# # 初始化arguments指针
+		# self.outline("@{0}".format(self.baseAddr["argument"]))
+		# self.outline("D=A")
+		# self.outline("@ARG")
+		# self.outline("M=D")
 
-		return
+		# # 初始化this指针
+		# self.outline("@{0}".format(self.baseAddr["thisBase"]))
+		# self.outline("D=A")
+		# self.outline("@THIS")
+		# self.outline("M=D")
+
+		# # 初始化that指针
+		# self.outline("@{0}".format(self.baseAddr["thatBase"]))
+		# self.outline("D=A")
+		# self.outline("@THAT")
+		# self.outline("M=D")
+		# return
 
 
 
