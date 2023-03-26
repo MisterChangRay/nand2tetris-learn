@@ -74,6 +74,143 @@ class CodeWriter:
 
 		return
 
+	def writeCall(self):
+		if(self.parser.commandType() != "C_CALL"):
+			return
+		self.ccall()
+		return
+
+	def writeReturn(self):
+		if(self.parser.commandType() != "C_RETURN"):
+			return
+		self.creturn()
+		return		
+
+	def writeFunction(self):
+		if(self.parser.commandType() != "C_FUNCTION"):
+			return
+		self.cfunction()
+		return
+	def creturn(self):
+
+		# R13 sub function result
+		self.stackdec()
+		self.outline("@{0}".format("R13"))
+		self.outline("M=D")
+
+
+		# reset stack pc
+		self.outline("@{0}".format("ARG"))
+		self.outline("D=M")
+		self.outline("@{0}".format("SP"))
+		self.outline("M=D")
+		self.outline("@{0}".format("R13"))
+		self.outline("D=M")		
+		self.stackinc()
+
+
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.outline("@R14")  
+		self.outline("M=D")
+
+		self.outline("@R14")  
+		self.outline("M=M-1")
+		self.outline("A=M")
+		self.outline("D=M")
+		self.outline("@{0}".format("THAT"))
+		self.outline("M=D")
+
+
+		self.outline("@R14")  
+		self.outline("M=M-1")
+		self.outline("A=M")
+		self.outline("D=M")
+		self.outline("@{0}".format("THIS"))
+		self.outline("M=D")
+
+
+
+		self.outline("@R14")  
+		self.outline("M=M-1")
+		self.outline("A=M")
+		self.outline("D=M")
+		self.outline("@{0}".format("ARG"))
+		self.outline("M=D")
+
+
+		self.outline("@R14")  
+		self.outline("M=M-1")
+		self.outline("A=M")
+		self.outline("D=M")
+		self.outline("@{0}".format("LCL"))
+		self.outline("M=D")
+
+
+		self.outline("@R14")  
+		self.outline("M=M-1")
+		self.outline("A=M")
+		self.outline("A=M")
+		self.outline("0;JMP")
+
+		return
+
+
+	def ccall(self):
+		returnTag = "({0}.{1})".format(self.parser.arg1(), self.nextIndex())
+		self.outline("@{0}".format(returnTag))
+		self.outline("D=A")
+		self.stackinc()
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.stackinc()
+		self.outline("@{0}".format("ARG"))
+		self.outline("D=M")
+		self.stackinc()
+		self.outline("@{0}".format("THIS"))
+		self.outline("D=M")
+		self.stackinc()
+		self.outline("@{0}".format("THAT"))
+		self.outline("D=M")
+		self.stackinc()
+
+
+		argslot = 5 + int(self.parser.arg2())
+		self.outline("@{0}".format(argslot))
+		self.outline("D=A")
+		self.outline("@{0}".format("SP"))
+		self.outline("D=M-D")
+		self.outline("@{0}".format("ARG"))
+		self.outline("M=D")
+
+		self.outline("@{0}".format("SP"))
+		self.outline("D=M")
+		self.outline("@{0}".format("LCL"))
+		self.outline("M=D")
+
+		self.outline("@{0}".format(self.parser.arg1()))
+		self.outline("0;JMP")
+		self.outline("({0})".format(returnTag))
+		return
+
+
+	def cfunction(self):
+		ftag = "{0}.{1}".format(self.filename, self.parser.arg1())
+		self.outline("@{0}".format(self.parser.arg2()))
+		self.outline("D=A")
+		self.outline("@R13")
+		self.outline("M=D")
+
+		self.outline("({0})".format(ftag))
+		self.outline("D=0")
+		self.stackinc()
+		self.outline("@R13")
+		self.outline("M=M-1")
+		self.outline("D=M")
+		self.outline("@{0}".format(ftag))
+		self.outline("D;JGT")
+		return
+
 	def writeLabel(self):
 		if(self.parser.commandType() != "C_LABEL"):
 			return
@@ -397,11 +534,11 @@ class CodeWriter:
 		self.output = output
 		self.parser = parser
 
-		# 初始化堆栈指针
-		self.outline("@{0}".format(self.baseAddr["stack"]))
-		self.outline("D=A")
-		self.outline("@SP")
-		self.outline("M=D")
+		# # 初始化堆栈指针
+		# self.outline("@{0}".format(self.baseAddr["stack"]))
+		# self.outline("D=A")
+		# self.outline("@SP")
+		# self.outline("M=D")
 
 		# # 初始化local指针
 		# self.outline("@{0}".format(self.baseAddr["local"]))
@@ -454,8 +591,15 @@ def parseFile(file, output):
 		if(parser.commandType() == "C_LABEL"):
 			codeWriter.writeLabel()
 			continue
-
-
+		if(parser.commandType() == "C_CALL"):
+			codeWriter.writeCall()
+			continue
+		if(parser.commandType() == "C_RETURN"):
+			codeWriter.writeReturn()
+			continue
+		if(parser.commandType() == "C_FUNCTION"):
+			codeWriter.writeFunction()
+			continue
 	return
 
 
