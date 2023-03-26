@@ -75,20 +75,18 @@ class CodeWriter:
 		return
 
 	def writeInit(self):
-		self.doinit()
+		# # 初始化堆栈指针
+		# self.outline("@{0}".format(self.baseAddr["stack"]))
+		# self.outline("D=A")
+		# self.outline("@SP")
+		# self.outline("M=D")
+
+		# #执行入口函数
+		# self.outline("@sys.init")
+		# self.outline("0;JMP")
 		return
 
-	def doinit(self):
-		# 初始化堆栈指针
-		self.outline("@{0}".format(self.baseAddr["stack"]))
-		self.outline("D=A")
-		self.outline("@SP")
-		self.outline("M=D")
-
-		#执行入口函数
-		self.outline("@Sys.init")
-		self.outline("0;JMP")
-		return
+	
 
 
 	def writeCall(self):
@@ -174,7 +172,7 @@ class CodeWriter:
 
 
 	def ccall(self):
-		returnTag = "({0}.{1})".format(self.parser.arg1(), self.nextIndex())
+		returnTag = "{0}.{1}.cretn".format(self.parser.arg1(), self.nextIndex())
 		self.outline("@{0}".format(returnTag))
 		self.outline("D=A")
 		self.stackinc()
@@ -212,20 +210,26 @@ class CodeWriter:
 
 
 	def cfunction(self):
-		ftag = "{0}.{1}".format(self.filename, self.parser.arg1())
+		fntag = "{0}".format( self.parser.arg1())
+		self.outline("({0})".format(fntag))
 		self.outline("@{0}".format(self.parser.arg2()))
 		self.outline("D=A")
 		self.outline("@R13")
 		self.outline("M=D")
 
-		self.outline("({0})".format(ftag))
-		self.outline("D=0")
-		self.stackinc()
+		self.outline("({0}_loop0)".format(fntag))
 		self.outline("@R13")
 		self.outline("M=M-1")
 		self.outline("D=M")
-		self.outline("@{0}".format(ftag))
-		self.outline("D;JGT")
+		self.outline("@{0}_loop1".format(fntag))
+		self.outline("D;JLT")
+		self.outline("D=0")
+		self.stackinc()
+		self.outline("@{0}_loop0".format(fntag))
+		self.outline("0;JMP")
+
+		self.outline("({0}_loop1)".format(fntag))
+
 		return
 
 	def writeLabel(self):
@@ -563,7 +567,6 @@ def parseFile(file, output):
 
 	parser = Parser(file)
 	codeWriter = CodeWriter(filename1, output, parser)
-	codeWriter.writeInit()
 
 	while parser.hasMoreCommands():
 		if(parser.commandType() == "C_ARITHMETIC"):
@@ -619,15 +622,12 @@ def start(srouceFileOrDir):
 	outputname = outputname + ".asm"
 	outputfile = open(outputname, "w")
 
-
+	write = CodeWriter(None, outputfile, None)
+	write.writeInit()
 	if(os.path.isfile(srouceFileOrDir)):
 			parseFile(srouceFileOrDir, outputfile)
 	else:
 		scanfiles(srouceFileOrDir, outputfile)
-	
-	outputfile.write("(PRO_END)\n");
-	outputfile.write("@PRO_END\n");
-	outputfile.write("0;JMP\n");
 
 	outputfile.close()
 	return
