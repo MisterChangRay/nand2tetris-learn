@@ -24,6 +24,11 @@ class Parser:
 			    return True
 
 		return
+
+	def line(self, txt):
+		self.linetxt = txt
+		return
+
 	def advance(self):
 		return self.linetxt
 	def commandType(self):
@@ -66,7 +71,8 @@ class Parser:
 
 	def __init__(self, filename):
 		self.linetxt = ""
-		self.sourcefile = open(filename,'r')
+		if(None != filename):
+			self.sourcefile = open(filename,'r')
 		return
 
 class CodeWriter:
@@ -75,15 +81,15 @@ class CodeWriter:
 		return
 
 	def writeInit(self):
-		# # 初始化堆栈指针
-		# self.outline("@{0}".format(self.baseAddr["stack"]))
-		# self.outline("D=A")
-		# self.outline("@SP")
-		# self.outline("M=D")
+		# 初始化堆栈指针
+		self.outline("@{0}".format(self.baseAddr["stack"]))
+		self.outline("D=A")
+		self.outline("@SP")
+		self.outline("M=D")
 
-		# #执行入口函数
-		# self.outline("@sys.init")
-		# self.outline("0;JMP")
+
+		self.parser.line("call sys.init 0")
+		self.writeCall()
 		return
 
 	
@@ -622,7 +628,7 @@ def start(srouceFileOrDir):
 	outputname = outputname + ".asm"
 	outputfile = open(outputname, "w")
 
-	write = CodeWriter(None, outputfile, None)
+	write = CodeWriter(None, outputfile, Parser(None))
 	write.writeInit()
 	if(os.path.isfile(srouceFileOrDir)):
 			parseFile(srouceFileOrDir, outputfile)
