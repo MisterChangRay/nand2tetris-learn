@@ -120,6 +120,14 @@ class CodeWriter:
 		self.outline("M=D")
 
 
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.outline("@5")
+		self.outline("A=D-A")
+		self.outline("D=M")
+		self.outline("@R14")
+		self.outline("M=D")
+
 		# reset stack pc
 		self.outline("@{0}".format("ARG"))
 		self.outline("D=M")
@@ -132,45 +140,43 @@ class CodeWriter:
 
 		self.outline("@{0}".format("LCL"))
 		self.outline("D=M")
-		self.outline("@R14")  
-		self.outline("M=D")
-
-		self.outline("@R14")  
-		self.outline("M=M-1")
-		self.outline("A=M")
+		self.outline("@1")
+		self.outline("A=D-A")
 		self.outline("D=M")
 		self.outline("@{0}".format("THAT"))
 		self.outline("M=D")
 
+				
 
-		self.outline("@R14")  
-		self.outline("M=M-1")
-		self.outline("A=M")
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.outline("@2")
+		self.outline("A=D-A")
 		self.outline("D=M")
 		self.outline("@{0}".format("THIS"))
 		self.outline("M=D")
 
 
-
-		self.outline("@R14")  
-		self.outline("M=M-1")
-		self.outline("A=M")
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.outline("@3")
+		self.outline("A=D-A")
 		self.outline("D=M")
 		self.outline("@{0}".format("ARG"))
 		self.outline("M=D")
 
 
-		self.outline("@R14")  
-		self.outline("M=M-1")
-		self.outline("A=M")
+
+		self.outline("@{0}".format("LCL"))
+		self.outline("D=M")
+		self.outline("@4")
+		self.outline("A=D-A")
 		self.outline("D=M")
 		self.outline("@{0}".format("LCL"))
 		self.outline("M=D")
 
 
 		self.outline("@R14")  
-		self.outline("M=M-1")
-		self.outline("A=M")
 		self.outline("A=M")
 		self.outline("0;JMP")
 
@@ -473,11 +479,7 @@ class CodeWriter:
 		if(self.parser.arg1() == "constant"):
 			self.stackdec()
 			return
-		if():
-			self.stackdec()
-			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()]))
-			self.outline("M=D")
-			return
+
 		if(self.parser.arg1() == "pointer" or self.parser.arg1() == "static" or self.parser.arg1() == "temp"):
 			self.stackdec()
 			self.outline("@R{0}".format(self.baseAddr[self.parser.arg1()] + int(self.parser.arg2())))
