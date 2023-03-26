@@ -74,6 +74,23 @@ class CodeWriter:
 
 		return
 
+	def writeInit(self):
+		self.doinit()
+		return
+
+	def doinit(self):
+		# 初始化堆栈指针
+		self.outline("@{0}".format(self.baseAddr["stack"]))
+		self.outline("D=A")
+		self.outline("@SP")
+		self.outline("M=D")
+
+		#执行入口函数
+		self.outline("@Sys.init")
+		self.outline("0;JMP")
+		return
+
+
 	def writeCall(self):
 		if(self.parser.commandType() != "C_CALL"):
 			return
@@ -534,36 +551,8 @@ class CodeWriter:
 		self.output = output
 		self.parser = parser
 
-		# # 初始化堆栈指针
-		# self.outline("@{0}".format(self.baseAddr["stack"]))
-		# self.outline("D=A")
-		# self.outline("@SP")
-		# self.outline("M=D")
 
-		# # 初始化local指针
-		# self.outline("@{0}".format(self.baseAddr["local"]))
-		# self.outline("D=A")
-		# self.outline("@LCL")
-		# self.outline("M=D")
-
-		# # 初始化arguments指针
-		# self.outline("@{0}".format(self.baseAddr["argument"]))
-		# self.outline("D=A")
-		# self.outline("@ARG")
-		# self.outline("M=D")
-
-		# # 初始化this指针
-		# self.outline("@{0}".format(self.baseAddr["thisBase"]))
-		# self.outline("D=A")
-		# self.outline("@THIS")
-		# self.outline("M=D")
-
-		# # 初始化that指针
-		# self.outline("@{0}".format(self.baseAddr["thatBase"]))
-		# self.outline("D=A")
-		# self.outline("@THAT")
-		# self.outline("M=D")
-		# return
+		return
 
 
 
@@ -574,6 +563,7 @@ def parseFile(file, output):
 
 	parser = Parser(file)
 	codeWriter = CodeWriter(filename1, output, parser)
+	codeWriter.writeInit()
 
 	while parser.hasMoreCommands():
 		if(parser.commandType() == "C_ARITHMETIC"):
