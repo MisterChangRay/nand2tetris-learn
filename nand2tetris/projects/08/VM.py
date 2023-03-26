@@ -4,6 +4,29 @@ import re
 import os
 from pathlib import Path
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#   简单实现的VM
+#  
+# 实现逻辑为，在内存中实现一个堆栈模型，所有逻辑操作在堆栈中进行(包括ARGS/lcl等内存分配)
+# 参数和局部变量表也是在堆栈中进行分配的，这样可以实现自动回收。
+# 
+#  需要注意的是两个指令, "call fn_name 0" 和 "function fn_name 0"
+# 前者是指传递的参数个数, 后者是指函数使用的局部变量表的个数. 所指的含义不同
+#
+
 def filename(file):
 	return Path(file).stem
 
@@ -115,11 +138,12 @@ class CodeWriter:
 	def creturn(self):
 
 		# R13 sub function result
+		# 首先保存返回值
 		self.stackdec()
 		self.outline("@{0}".format("R13"))
 		self.outline("M=D")
 
-
+		# 保存返回地址, 因为LCL指针和ARG指针可能指向同一地址，当没有参数时
 		self.outline("@{0}".format("LCL"))
 		self.outline("D=M")
 		self.outline("@5")
@@ -128,7 +152,7 @@ class CodeWriter:
 		self.outline("@R14")
 		self.outline("M=D")
 
-		# reset stack pc
+		# 重置 堆栈指针, reset stack pc
 		self.outline("@{0}".format("ARG"))
 		self.outline("D=M")
 		self.outline("@{0}".format("SP"))
@@ -137,7 +161,7 @@ class CodeWriter:
 		self.outline("D=M")		
 		self.stackinc()
 
-
+		# 下面依次恢复所有指针
 		self.outline("@{0}".format("LCL"))
 		self.outline("D=M")
 		self.outline("@1")
