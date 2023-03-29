@@ -6,10 +6,20 @@ from pathlib import Path
 
 
 class JackTokenizer:
-	def start(self):
-		print(self.sourceTokens)
-		# while(self.hasMoreCommands()):
-		# 	print(self.advance(), self.tokenType())
+	def xml(self):
+		# print(self.sourceTokens)
+		outputfile = self.filepath[:len(self.filepath)-5]
+		outputfile = outputfile + "T2.xml"
+		output = open(outputfile, "w")
+		output.write("<tokens>\n")
+		while(self.hasMoreCommands()):
+			tmp = self.advance()
+			if(tmp == "<"):
+				tmp = "&lt;"
+
+			output.write("<{0}> {1} </{2}>\n".format(self.tokenType(), tmp, self.tokenType()))
+		output.write("</tokens>\n")
+		output.close()
 		return
 
 
@@ -54,36 +64,36 @@ class JackTokenizer:
 	def tokenType(self):
 		for keyword in self.tokens['keywords']:
 			if(self.advance() == keyword):
-				return "KEYWORD"
+				return "keyword"
 		for keyword in self.tokens['symbols']:
 			if(self.advance() == keyword):
-				return "SYMBOL"
+				return "symbol"
 		if(re.match(r"^\d+$", self.advance())):
-				return "INT-CONST"
+				return "integerConstant"
 		if(re.match(r"^\".*\"$", self.advance())):
-				return "STRING-CONST"
-		if(re.match(r"^[^\d][0-9a-zA-Z_]+$", self.advance())):
-				return "IDENTIFIER"
+				return "stringConstant"
+		if(re.match(r"^[\da-zA-Z_]+$", self.advance())):
+				return "identifier"
 		
 		return		
 	def keyword(self):
-
-		return		
+		return self.advance()
 	def keyword(self):
-		return
+		return self.advance()
 	def symbol(self):
-		return
+		return self.advance()					
 	def identifier(self):
-		return
+		return self.advance()
 	def intval(self):
-		return
+		return self.advance()
 	def stringval(self):
-		return
+		return self.advance()
 
 	# a=a+b;
 	# function test(){}
 	# if(a>b)
 	# return a-b
+	# print
 	def parseToken(self, txt):
 		terms = re.findall(self.regToken, txt)
 		terms = terms[0]
@@ -120,7 +130,7 @@ class JackTokenizer:
 			]
 		}
 		self.sourceTokens = []
-		self.tokenIndex = 0
+		self.tokenIndex = -1
 
 		# 读取每行代码, 进行token分割操作
 		while self.nextline():
@@ -131,7 +141,8 @@ class JackTokenizer:
 					break
 
 				if(len(res.strip()) > 0):
-					if(False == re.match(r"^\".*", res) and re.match(r".+\s.+", res)):
+					# print( re.match(r"^\".*", res) , re.match(r".+\s.+", res),res)
+					if(None == re.match(r"^\".*", res) and re.match(r".+\s.+", res)):
 						tmp = re.split(r"\s", res)
 						for tmp1 in tmp:
 							if(len(tmp1.strip()) == 0):
