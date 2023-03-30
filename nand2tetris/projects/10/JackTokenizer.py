@@ -106,7 +106,7 @@ class JackTokenizer:
 			return "integerConstant"
 		if(self.tokenTmp1.find(txt) > -1):
 			return "symbol"
-		if(self.tokenTmp2.find(txt + "|") > -1):
+		if(self.tokenTmp2.find("|" + txt + "|") > -1):
 			return "keyword"
 		return "identifier"
 
@@ -162,12 +162,12 @@ class JackTokenizer:
 		self.filepath = filepath
 		self.sourcefile = open(filepath, 'r')
 		self.tokenTmp1 = "{}()[].,;+-*/&|<>=~";
-		self.tokenTmp2 = "class|constructor|function|method|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return|"
+		self.tokenTmp2 = "|class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return|"
 
 
 		self.tokens = {
 			"keywords" : [
-				'class', 'constructor', 'function', 'method', 'field', 
+				'class', 'constructor', 'function', 'method', 'field',  'static',
 				'var', 'int', 'char', 'boolean', 'void', 'true', 'false', 'null', 'this',
 				'let', 'do', 'if', 'else', 'while', 'return'
 				],
