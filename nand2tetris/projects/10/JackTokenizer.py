@@ -4,6 +4,11 @@ import re
 import os
 from pathlib import Path
 
+class Token:
+	def __init__(self, val, type):
+		self.val = val
+		self.type = type
+		return
 
 class JackTokenizer:
 	def xml(self):
@@ -17,7 +22,7 @@ class JackTokenizer:
 			if(tmp == "<"):
 				tmp = "&lt;"
 
-			output.write("<{0}> {1} </{2}>\n".format(self.tokenType(), tmp, self.tokenType()))
+			output.write("<{0}> {1} </{2}>\n".format(self.tokenType(), tmp.val, self.tokenType()))
 		output.write("</tokens>\n")
 		output.close()
 		return
@@ -62,20 +67,9 @@ class JackTokenizer:
 		return res
 
 	def tokenType(self):
-		for keyword in self.tokens['keywords']:
-			if(self.advance() == keyword):
-				return "keyword"
-		for keyword in self.tokens['symbols']:
-			if(self.advance() == keyword):
-				return "symbol"
-		if(re.match(r"^\d+$", self.advance())):
-				return "integerConstant"
-		if(re.match(r"^\".*\"$", self.advance())):
-				return "stringConstant"
-		if(re.match(r"^[\da-zA-Z_]+$", self.advance())):
-				return "identifier"
-		
-		return		
+		res =  self.sourceTokens[self.tokenIndex]
+		return res.type
+
 	def keyword(self):
 		return self.advance()
 	def keyword(self):
@@ -105,15 +99,70 @@ class JackTokenizer:
 			return None
 		
 
+	def getType(self, txt):
+		if(txt.startswith("\"")):
+			return "stringConstant"
+		if(re.match("^\\d+$", txt)):
+			return "integerConstant"
+		if(self.tokenTmp1.find(txt) > -1):
+			return "symbol"
+		if(self.tokenTmp2.find(txt + "|") > -1):
+			return "keyword"
+		return "identifier"
+
+	def parserLine(self, line, start, end, alen, res):
+
+		if( start >= end or (start + alen) > end ):
+			return
+
+		txt = line[start:start+alen]
+
+		# print("txt", txt)
+		if(re.match(r"^\s$", txt)):
+			self.parserLine(line, start+1, end, 1, res)
+			return
+
+		isend = line[start+(alen-1) : start+alen]
+
+		if(txt.startswith("\"") ):
+			
+			tmp = line[start +1:]
+			i = tmp.find("\"");
+			res.append(Token(line[start+1:start+i+1], self.getType(line[start:start+i])))
+			# print(tmp, i, start, end, line)
+
+			self.parserLine(line, start + i + 2 , end, 1, res)
+
+		elif(self.tokenTmp1.find(txt) > -1):
+			txt2 = txt
+			if(txt2 == "<"):
+				txt2 = "&lt;"
+
+			res.append(Token(txt2, self.getType(txt)))
+			self.parserLine(line, start + alen, end, 1, res)
+		elif(self.tokenTmp1.find(isend) > -1 or re.match(r"^\s$", isend)):
+			tv = txt[0:len(txt)-1]
+			res.append(Token(tv, self.getType(tv)))
+			next = start + alen
+
+			if(False == re.match(r"^\s$", isend)):
+				res.append(Token(isend, self.getType(isend)))
+			else:
+				next = next - 1
+			self.parserLine(line, next, end, 1, res)
+		else:
+			self.parserLine(line, start, end, alen + 1, res)
+
+
+
+
 
 
 	def __init__(self, filepath):
 		self.filepath = filepath
 		self.sourcefile = open(filepath, 'r')
-		tokenTmp1 = "{|}|\\(|\\)|[|]|\\.|,|;|\\+|-|\\*|/|&|\\||<|>|=|~";
-		tokenTmp2 = "class|constructor|function|method|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return"
-		tokenTmp3 = r"({|}|\(|\)|\[|\]|\.|,|;|\+|-|\*|/|&|\||<|>|=|~|class|constructor|function|method|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return)"
-		self.regToken = "(.*?)?" + tokenTmp3 + "(.*?)?" + tokenTmp3 + "?"
+		self.tokenTmp1 = "{}()[].,;+-*/&|<>=~";
+		self.tokenTmp2 = "class|constructor|function|method|field|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return|"
 
 
 		self.tokens = {
@@ -134,27 +183,12 @@ class JackTokenizer:
 
 		# 读取每行代码, 进行token分割操作
 		while self.nextline():
-			while True:
-				res = self.parseToken(self.linetxt)
-
-				if(None == res):
-					break
-
-				if(len(res.strip()) > 0):
-					# print( re.match(r"^\".*", res) , re.match(r".+\s.+", res),res)
-					if(None == re.match(r"^\".*", res) and re.match(r".+\s.+", res)):
-						tmp = re.split(r"\s", res)
-						for tmp1 in tmp:
-							if(len(tmp1.strip()) == 0):
-								continue
-							self.sourceTokens.append(tmp1)
-					else:
-						self.sourceTokens.append(res.strip())
-
-
-				sindex = self.linetxt.index(res) + len(res)
-				self.linetxt = self.linetxt[sindex:]
-				if(len(self.linetxt) == 0 ):
-					break
-
+			startline = 0
+			offset = 0;
+			endline = len(self.linetxt)
+			self.parserLine(self.linetxt, 0, endline, 1, self.sourceTokens)
 		return
+
+
+
+
