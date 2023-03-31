@@ -5,9 +5,10 @@ import os
 from pathlib import Path
 
 class Token:
-	def __init__(self, val, type):
+	def __init__(self, val, type, lineno):
 		self.val = val
 		self.type = type
+		self.lineno = lineno
 		return
 
 class JackTokenizer:
@@ -111,7 +112,7 @@ class JackTokenizer:
 			return "keyword"
 		return "identifier"
 
-	def parserLine(self, line, start, end, alen, res):
+	def parserLine(self, line, start, end, alen, res, lineno):
 
 		if( start >= end or (start + alen) > end ):
 			return
@@ -120,7 +121,7 @@ class JackTokenizer:
 
 		# print("txt", txt)
 		if(re.match(r"^\s$", txt)):
-			self.parserLine(line, start+1, end, 1, res)
+			self.parserLine(line, start+1, end, 1, res, lineno)
 			return
 
 		isend = line[start+(alen-1) : start+alen]
@@ -129,30 +130,30 @@ class JackTokenizer:
 			
 			tmp = line[start +1:]
 			i = tmp.find("\"");
-			res.append(Token(line[start+1:start+i+1], self.getType(line[start:start+i])))
+			res.append(Token(line[start+1:start+i+1], self.getType(line[start:start+i]), lineno))
 			# print(tmp, i, start, end, line)
 
-			self.parserLine(line, start + i + 2 , end, 1, res)
+			self.parserLine(line, start + i + 2 , end, 1, res, lineno)
 
 		elif(self.tokenTmp1.find(txt) > -1):
 			txt2 = txt
 			if(txt2 == "<"):
 				txt2 = "&lt;"
 
-			res.append(Token(txt2, self.getType(txt)))
-			self.parserLine(line, start + alen, end, 1, res)
+			res.append(Token(txt2, self.getType(txt), lineno))
+			self.parserLine(line, start + alen, end, 1, res, lineno)
 		elif(self.tokenTmp1.find(isend) > -1 or re.match(r"^\s$", isend)):
 			tv = txt[0:len(txt)-1]
-			res.append(Token(tv, self.getType(tv)))
+			res.append(Token(tv, self.getType(tv), lineno))
 			next = start + alen
 
 			if(False == re.match(r"^\s$", isend)):
-				res.append(Token(isend, self.getType(isend)))
+				res.append(Token(isend, self.getType(isend), lineno))
 			else:
 				next = next - 1
-			self.parserLine(line, next, end, 1, res)
+			self.parserLine(line, next, end, 1, res, lineno)
 		else:
-			self.parserLine(line, start, end, alen + 1, res)
+			self.parserLine(line, start, end, alen + 1, res, lineno)
 
 
 
@@ -181,13 +182,15 @@ class JackTokenizer:
 		}
 		self.sourceTokens = []
 		self.tokenIndex = -1
+		self.lineno = 0
 
 		# 读取每行代码, 进行token分割操作
 		while self.nextline():
+			self.lineno = self.lineno + 1
 			startline = 0
 			offset = 0;
 			endline = len(self.linetxt)
-			self.parserLine(self.linetxt, 0, endline, 1, self.sourceTokens)
+			self.parserLine(self.linetxt, 0, endline, 1, self.sourceTokens, self.lineno)
 		return
 
 

@@ -10,6 +10,9 @@ from pathlib import Path
 
 class CompilationEngine:
 
+	def error(self, line):
+		print("error occen with line {0}: {1}".format(self.line, line))
+		return
 
 	def compileClass(self):
 		self.outxml("<class>")
@@ -17,29 +20,20 @@ class CompilationEngine:
 			tmp = self.tokenizer.advance()
 			
 			if(tmp.type == "keyword"):
-				if(tmp.val == "class"):
-					self.compileClass(tmp, self.tokenizer.sourceTokens, self.tokenizer.tokenIndex);
-				elif(tmp.val == "method" or tmp.val == "function"):
-					self.compileSubroutine(tmp)
-				elif(tmp.val == "do"):
-					self.compileDo(tmp)
-				elif(tmp.val == "let"):
-					self.compileLet(tmp)
-				elif(tmp.val == "while"):
-					self.compileWhile(tmp)
-				elif(tmp.val == "return"):
-					self.compileReturn(tmp)
-				elif(tmp.val == "if"):
-					self.compileIf(tmp)
+				if(tmp.val == "method" or tmp.val == "function"):
+					self.compileSubroutine()
 				elif(tmp.val == "field" or tmp.val == "static"):
-					self.compileClassVarDec(tmp)
-				elif(tmp.val == "var" ):
-					self.compileVarDec(tmp)
+					self.compileClassVarDec()
+				else:
+					self.error()
 			elif(tmp.type == "symbol"):
 				self.outxml("<symbol>{0}</symbol>".format(tmp.val))
-				return
-
+			elif(tmp.type == "identifier"):
+				self.outxml("<symbol>{0}</symbol>".format(tmp.val))
+			else:
+				self.error()
 		self.outxml("</class>")
+
 		return
 	def compileClassVarDec(self):
 		return
