@@ -11,7 +11,8 @@ class Token:
 		return
 
 class JackTokenizer:
-	def xml(self):
+	
+	def xmltoken(self):
 		# print(self.sourceTokens)
 		outputfile = self.filepath[:len(self.filepath)-5]
 		outputfile = outputfile + "T2.xml"

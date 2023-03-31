@@ -9,11 +9,37 @@ from pathlib import Path
 
 
 class CompilationEngine:
-	def compileClass(self):
-		while(self.tokenizer.hasMoreCommands()):
-			print(self.tokenizer.advance(), self.tokenizer.tokenType())
-		return
 
+
+	def compileClass(self):
+		self.outxml("<class>")
+		while(self.tokenizer. hasMoreCommands()):
+			tmp = self.tokenizer.advance()
+			
+			if(tmp.type == "keyword"):
+				if(tmp.val == "class"):
+					self.compileClass(tmp, self.tokenizer.sourceTokens, self.tokenizer.tokenIndex);
+				elif(tmp.val == "method" or tmp.val == "function"):
+					self.compileSubroutine(tmp)
+				elif(tmp.val == "do"):
+					self.compileDo(tmp)
+				elif(tmp.val == "let"):
+					self.compileLet(tmp)
+				elif(tmp.val == "while"):
+					self.compileWhile(tmp)
+				elif(tmp.val == "return"):
+					self.compileReturn(tmp)
+				elif(tmp.val == "if"):
+					self.compileIf(tmp)
+				elif(tmp.val == "field" or tmp.val == "static"):
+					self.compileClassVarDec(tmp)
+				elif(tmp.val == "var" ):
+					self.compileVarDec(tmp)
+			elif(tmp.type == "symbol"):
+				self.outxml("<symbol>{0}</symbol>".format(tmp.val))
+				return
+
+		self.outxml("</class>")
 		return
 	def compileClassVarDec(self):
 		return
@@ -41,16 +67,23 @@ class CompilationEngine:
 		return
 	def compileExpressionList(self):
 		return
+	def outxml(self, line):
+		self.xmlfile.write(line  + "\n");
+
 	def outline(line):
 		self.outputfile.write(line  + "\n");
 	def __init__(self, inputfile, outputfile):
 		self.inputfile =  open(inputfile, "r");
 		self.outputfile = open(outputfile, "w");
+
+		xmlfilepath = self.inputfile.name[:len(self.inputfile.name)-5]
+		xmlfilepath = xmlfilepath + "2.xml"
+		self.xmlfile = open(xmlfilepath, "w")
+
+
 		self.tokenizer =  JackTokenizer(inputfile)
-		self.tokenizer.xml()
+		self.tokenizer.xmltoken()
 		self.compileClass()
-
-
 
 
 def filename(file):
