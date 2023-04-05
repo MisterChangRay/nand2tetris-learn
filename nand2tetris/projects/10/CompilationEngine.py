@@ -3,8 +3,11 @@ import sys
 import re
 import os
 from JackTokenizer import JackTokenizer
+from JackTokenizer import Token
 import traceback
 from pathlib import Path
+
+MAX = 1000000
 
 class SymbolStack:
 	stack = []
@@ -115,7 +118,6 @@ class CompilationEngine:
 
 
 
-		print(tmp.val)
 		return
 	def compileSubroutine(self):
 		for i in range(10):
@@ -243,11 +245,16 @@ class CompilationEngine:
 		return
 
 	def compileStatements(self):
+		self.outxml("<statements>")
+		self.indent +=1
 		while(True):
 			tmp = self.tokenizer.advance(1)
+
+
 			if(tmp.type == "keyword" and tmp.val == "do"):
 				self.compileDo()
 			elif(tmp.type == "keyword" and tmp.val == "let"):
+
 				self.compileLet()
 			elif(tmp.type == "keyword" and tmp.val == "if"):
 				self.compileIf()
@@ -256,13 +263,93 @@ class CompilationEngine:
 			elif(tmp.type == "keyword" and tmp.val == "return"):
 				self.compileReturn()
 			elif(tmp.type == "symbol" and tmp.val == "}"):
+				self.indent -= 1
+				self.outxml("</statements>")
 				break
 			else:
 				self.error(tmp)
+
 		return
 	def compileDo(self):
+		# todo 还没搞完
+		self.outxml("<doStatement>")
+		self.indent += 1
+		tmp1 = self.tokenizer.next()
+		self.outxml(tmp1, 2)
+
+		for x in range(1000):
+			tmp2 = self.tokenizer.next()
+			self.outxml(tmp2, 2)
+			if(tmp2.type == "symbol" and tmp2.val == "("):
+				self.compileExpressionList()
+			if(tmp2.type == "symbol" and tmp2.val == ")"):
+				break
+		tmp2 = self.tokenizer.next()
+		if(tmp2.type != "identifier"):
+			self.error(tmp2)
+		tmp3 = self.tokenizer.next()
+		if(tmp3.type != "symbol" and tmp3.val != ";"):
+			self.error(tmp3)
+
+		self.outxml(tmp1)
+		self.outxml(tmp2)
+		self.outxml(tmp3)
+
+		self.outxml("</doStatement>")
+		self.tokenizer.next()
+
 		return
+	def getSubSet(self, startFlag, endFlag):
+		subset = []
+
+		cupleCount = 0
+		for i in range(MAX):
+			tmp1 = self.tokenizer.advance(1)
+			if(tmp1.type == "symbol" and startFlag != None and tmp1.val != startFlag and cupleCount == 0 and i == 0):
+					return subset
+			if(tmp1.type == "symbol" and tmp1.val == endFlag and cupleCount == 0):
+					return subset
+
+			tmp1 = self.tokenizer.next()
+			if(tmp1.type ==  "symbol" and startFlag != None and tmp1.val == startFlag):
+				cupleCount += 1
+			if(tmp1.type ==  "symbol" and startFlag != None and tmp1.val == endFlag):
+				cupleCount -= 1
+			subset.append(tmp1)
+
+
+		return subset
+
+
 	def compileLet(self):
+		self.outxml("<letStatement>")
+		self.indent += 1
+		
+		eq = False
+		for i in range(MAX):
+			tmp = self.tokenizer.next()
+
+			if(i == 0):
+				self.outxml(tmp, 2)
+			elif(i == 1 and tmp.type == "identifier"):
+				self.outxml(tmp, 2)
+			elif(i == 2 and tmp.type == "symbol" and tmp.val == "["):
+				res = self.getSubSet("[", "]")
+				self.compileExpression(res)
+			elif(i >= 2 and tmp.type == "symbol" and tmp.val == "="):
+				eq = True
+				self.outxml(tmp, 2)
+
+				res = self.getSubSet(None, ";")
+				# print(33333, res[0].val, res[1].val)
+				self.compileExpression(res)
+				break;
+			else:
+				self.error(tmp)
+				break
+
+		self.indent -= 1
+		self.outxml("<letStatement>")
 		return
 	def compileWhile(self):
 		return
@@ -270,11 +357,176 @@ class CompilationEngine:
 		return
 	def compileIf(self):
 		return
-	def compileExpression(self):
+	def compileExpression(self, subset):
+		self.outxml("<expression>")
+		self.indent += 1
+
+
+		termSubsets = self.getTermSets(subset)
+		if(len(termSubsets) > 0):
+			for tmp in termSubsets:
+				if(isinstance(tmp, Token)):
+					self.outxml(tmp, 2)
+				elif(len(tmp) > 0):
+					self.compileTerm(tmp)
+
+		self.indent -= 1
+		self.outxml("</expression>")
+
 		return
-	def compileTerm(self):
+
+	def getTermSets(self, aset):
+		subsets = []
+
+		if(len(aset) == 0):
+			return subset;
+		itemset = []
+		for item in aset:
+			if(self.isOp(item)):
+				subsets.append(itemset)
+				subsets.append(item)
+				itemset = []
+			else:
+				itemset.append(item)
+		subsets.append(itemset)
+		return subsets
+
+
+	def isEndSymbol (self, endToken):
+		res = self.tokenizer.advance(1)
+		if(res.type == "symbol" and res.val == endToken):
+			return True
+		return False
+
+	def isOp (self, tmp):
+		res = tmp
+		endOfTerm = {
+			"+":"+",
+			"-":"+",
+			"*":"+",
+			"/":"+",
+			"&":"+",
+			"|":"+",
+			"<":"+",
+			">":"+",
+			"=":"+",
+		}
+		if(res.type == "symbol" and endOfTerm.get(res.val) != None):
+			return True
+
+		return False
+	def isunaryOp(tmp):
+		if(tmp.type == "symbol" and (tmp.val == "-" or tmp .val == "~")):
+			return True
+		else:
+			return False
+
+	def getExpiressionList(self, psets, startFlag, endFlag):
+		sets = []
+
+		tmps = []
+		cupleCount = 0
+		for i in range(len(psets)):
+			tmpi = psets[i]
+			if(tmpi.type == "symbol" and tmpi.val == startFlag):
+				if(i == 0):
+					sets.append(tmpi)
+				else:
+					tmps.append(tmpi)
+					cupleCount +=1
+
+			elif(tmpi.type == "symbol" and tmpi.val == endFlag):
+				if(cupleCount == 0):
+					sets.append(tmps)
+
+					sets.append(tmpi)
+					break
+				else:
+					cupleCount -= 1
+					tmps.append(tmpi)
+			elif(tmpi.type == "symbol" and tmpi.val == ","):
+				sets.append(tmpi)
+				sets.append(tmps)
+				tmps = []
+			else:
+				tmps.append(tmpi)
+
+		return sets
+
+
+	def compileTerm(self, subsets):
+		self.outxml("<term>")
+		self.indent += 1
+		cupleSymbol = 0
+
+		# print(9000000, subsets[1].type, subsets[1].val)
+		for i in range(len(subsets)):
+			tmp = subsets[i]
+
+			print(9000001, tmp.type, tmp.val)
+			if(tmp.type == "integerConstant" or tmp.type == "stringConstant"):
+				self.outxml(tmp, 2)
+			elif(i == 1 and tmp.type == "keyword" and (tmp.val == "true" or tmp.val == "false"
+			 or tmp.val == "null" or tmp.val == "this")):
+				self.outxml(tmp, 2)
+			# 函数调用  var.b()
+			# 变量 var
+			# 数组 var[i]
+			# 表达式 a*(a+b)
+			elif(tmp.type == "identifier"):
+				nextTmp = subsets[i + 1]
+				if(nextTmp.type == "symbol" and nextTmp.val == "("):
+					# 函数
+					self.outxml(tmp, 2)
+					self.compileExpressionList(subsets[i+1:])
+				elif(nextTmp.type == "symbol" and nextTmp.val == "["):
+					## 数组
+					for i in range(MAX):
+						tmp4 = self.tokenizer.next()
+						self.outxml(tmp4, 2)
+						if(tmp4.type == "symbol" and tmp4.val == "]"):
+							break
+				else:
+					self.outxml(tmp, 2)
+			elif(tmp.type == "symbol" and tmp.val == "("):
+				# 表达式
+				self.compileExpression()
+			elif(tmp.type == "symbol" and (tmp.val == ".")):
+				# 变量
+				self.outxml(tmp,2)
+			elif(self.isunaryOp(tmp)):
+				self.outxml(tmp,2)
+			else:
+				self.error(tmp)
+
+
+		self.indent -= 1
+		self.outxml("</term>")
 		return
-	def compileExpressionList(self):
+	def compileExpressionList(self, asets):
+		expiresets = self.getExpiressionList(asets, "(", ")")
+
+		print(9000002, len(expiresets), expiresets[0].val, len(expiresets[1]))
+		if(len(expiresets) == 2) :
+			return
+
+		for i in range(len(expiresets)):
+			tmpi = expiresets[i]
+			if(i == 0):
+				self.outxml(tmpi, 2)		
+				self.outxml("<expressionList>")
+				self.indent += 1
+			elif(isinstance(tmpi, Token)):
+				if(tmpi.val == ")"):
+					self.indent -= 1
+					self.outxml("</expressionList>")
+					self.outxml(tmpi, 2)		
+				else:
+					self.outxml(tmpi, 2)		
+			else:
+				self.compileExpression(tmpi);
+
+		
 		return
 	def outxml(self, line, type = 1):
 		if(type == 1):

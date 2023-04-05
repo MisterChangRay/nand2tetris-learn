@@ -27,3 +27,22 @@
         <identifier> sum </identifier>
         <symbol> ; </symbol>
       </varDec>
+      <statements>
+        <letStatement>
+          <keyword> let </keyword>
+          <identifier> length </identifier>
+          <symbol> = </symbol>
+          <expression>
+            <term>
+              <identifier> Keyboard </identifier>
+              <symbol> . </symbol>
+              <identifier> readInt </identifier>
+              <symbol> ( </symbol>
+              <expressionList>
+                <expression>
+                  <term>
+                    <stringConstant> HOW MANY NUMBERS?  </stringConstant>
+                  </term>
+                </expression>
+              </expressionList>
+              <symbol> ) </symbol>
