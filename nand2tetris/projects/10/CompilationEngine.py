@@ -338,6 +338,7 @@ class CompilationEngine:
 				eq = True
 				self.outxml(tmp, 2)
 				self.compileExpression()
+		
 				break;
 			else:
 				self.error(tmp)
@@ -348,7 +349,18 @@ class CompilationEngine:
 		self.outxml("<letStatement>")
 		return
 	def compileWhile(self):
-		sys.exit()
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		self.compileExpression()
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		self.compileStatements()
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
 		return
 	def compileReturn(self):
 		return
@@ -469,6 +481,7 @@ class CompilationEngine:
 			elif(i == 1 and tmp.type == "keyword" and (tmp.val == "true" or tmp.val == "false"
 			 or tmp.val == "null" or tmp.val == "this")):
 				self.outxml(tmp, 2)
+				break
 			# 函数调用  var.b()
 			# 变量 var
 			# 数组 var[i]
@@ -497,6 +510,9 @@ class CompilationEngine:
 				self.outxml(tmp,2)
 			elif(self.isunaryOp(tmp)):
 				self.outxml(tmp,2)
+			else:
+				self.tokenizer.index(-1)
+				break
 
 
 

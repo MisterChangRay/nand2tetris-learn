@@ -46,7 +46,16 @@
                 </expression>
               </expressionList>
               <symbol> ) </symbol>
-              <identifier> a </identifier>
+            </term>
+          </expression>
+          <symbol> ; </symbol>
+        <letStatement>
+        <letStatement>
+          <keyword> let </keyword>
+          <identifier> a </identifier>
+          <symbol> = </symbol>
+          <expression>
+            <term>
               <identifier> Array </identifier>
               <symbol> . </symbol>
               <identifier> new </identifier>
@@ -55,45 +64,17 @@
                 <expression>
                   <term>
                     <identifier> length </identifier>
-                    <identifier> i </identifier>
-                    <integerConstant> 0 </integerConstant>
                   </term>
                 </expression>
               </expressionList>
-              <symbol> ; </symbol>
-              <expression>
-                <term>
-                  <identifier> i </identifier>
-                  <identifier> length </identifier>
-                  <symbol> [ </symbol>
-                  <identifier> i </identifier>
-                  <symbol> ] </symbol>
-                  <identifier> Keyboard </identifier>
-                  <symbol> . </symbol>
-                  <identifier> readInt </identifier>
-                  <symbol> ( </symbol>
-                  <expressionList>
-                    <expression>
-                      <term>
-                        <stringConstant> ENTER THE NEXT NUMBER:  </stringConstant>
-                      </term>
-                    </expression>
-                  </expressionList>
-                  <symbol> ) </symbol>
-                  <identifier> i </identifier>
-                  <identifier> i </identifier>
-                  <integerConstant> 1 </integerConstant>
-                </term>
-              </expression>
-              <identifier> i </identifier>
-              <integerConstant> 0 </integerConstant>
+              <symbol> ) </symbol>
             </term>
           </expression>
           <symbol> ; </symbol>
         <letStatement>
         <letStatement>
           <keyword> let </keyword>
-          <identifier> sum </identifier>
+          <identifier> i </identifier>
           <symbol> = </symbol>
           <expression>
             <term>
@@ -102,3 +83,13 @@
           </expression>
           <symbol> ; </symbol>
         <letStatement>
+        <keyword> while </keyword>
+        <symbol> ( </symbol>
+        <expression>
+          <term>
+            <identifier> i </identifier>
+          </term>
+        </expression>
+        <symbol> &lt; </symbol>
+        <identifier> length </identifier>
+        <statements>

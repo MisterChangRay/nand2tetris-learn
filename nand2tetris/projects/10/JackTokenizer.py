@@ -30,6 +30,10 @@ class JackTokenizer:
 		output.close()
 		self.tokenIndex = -1
 		return
+	def index(self, i):
+		self.tokenIndex += i
+		return
+	
 	def next(self):
 		self.tokenIndex = self.tokenIndex + 1
 		if(self.tokenIndex >= len(self.sourceTokens)):
