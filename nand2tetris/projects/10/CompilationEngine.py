@@ -254,7 +254,6 @@ class CompilationEngine:
 			if(tmp.type == "keyword" and tmp.val == "do"):
 				self.compileDo()
 			elif(tmp.type == "keyword" and tmp.val == "let"):
-
 				self.compileLet()
 			elif(tmp.type == "keyword" and tmp.val == "if"):
 				self.compileIf()
@@ -334,15 +333,11 @@ class CompilationEngine:
 			elif(i == 1 and tmp.type == "identifier"):
 				self.outxml(tmp, 2)
 			elif(i == 2 and tmp.type == "symbol" and tmp.val == "["):
-				res = self.getSubSet("[", "]")
-				self.compileExpression(res)
+				self.compileExpression()
 			elif(i >= 2 and tmp.type == "symbol" and tmp.val == "="):
 				eq = True
 				self.outxml(tmp, 2)
-
-				res = self.getSubSet(None, ";")
-				# print(33333, res[0].val, res[1].val)
-				self.compileExpression(res)
+				self.compileExpression()
 				break;
 			else:
 				self.error(tmp)
@@ -353,34 +348,35 @@ class CompilationEngine:
 		self.outxml("<letStatement>")
 		return
 	def compileWhile(self):
+		sys.exit()
 		return
 	def compileReturn(self):
 		return
 	def compileIf(self):
 		return
-	def compileExpression(self, subset):
+	def compileExpression(self):
 		self.outxml("<expression>")
 		self.indent += 1
 
-
-		termSubsets = self.getTermSets(subset)
-		if(len(termSubsets) > 0):
-			for tmp in termSubsets:
-				if(isinstance(tmp, Token)):
-					self.outxml(tmp, 2)
-				elif(len(tmp) > 0):
-					self.compileTerm(tmp)
+		self.compileTerm()
+		for i in range(MAX):
+			tmp = self.tokenizer.advance(1)
+			if(self.isOp(tmp)):
+				tmp = self.tokenizer.next()
+				self.outxml(tmp, 2)
+				self.compileTerm()
+			else:
+				break
 
 		self.indent -= 1
 		self.outxml("</expression>")
-
 		return
 
 	def getTermSets(self, aset):
 		subsets = []
 
 		if(len(aset) == 0):
-			return subset;
+			return subsets;
 		itemset = []
 		for item in aset:
 			if(self.isOp(item)):
@@ -459,19 +455,17 @@ class CompilationEngine:
 		return sets, eatSize
 
 
-	def compileTerm(self, subsets):
+	def compileTerm(self):
 		self.outxml("<term>")
 		self.indent += 1
-		cupleSymbol = 0
 
 		# print(9000000, subsets[1].type, subsets[1].val)
-		i = -1
-		while(i < (len(subsets) -1)):
-			i += 1
-			tmp = subsets[i]
-			print(9000001, tmp.type, tmp.val, i, len(subsets))
+		for i in range(MAX):
+			tmp = self.tokenizer.next()
+
 			if(tmp.type == "integerConstant" or tmp.type == "stringConstant"):
 				self.outxml(tmp, 2)
+				break
 			elif(i == 1 and tmp.type == "keyword" and (tmp.val == "true" or tmp.val == "false"
 			 or tmp.val == "null" or tmp.val == "this")):
 				self.outxml(tmp, 2)
@@ -480,13 +474,13 @@ class CompilationEngine:
 			# 数组 var[i]
 			# 表达式 a*(a+b)
 			elif(tmp.type == "identifier"):
-				nextTmp = subsets[i + 1]
-				if(nextTmp.type == "symbol" and nextTmp.val == "("):
+				nextTmp = self.tokenizer.advance(1)
+
+				if(None != nextTmp and nextTmp.type == "symbol" and nextTmp.val == "("):
 					# 函数
 					self.outxml(tmp, 2)
-					size = self.compileExpressionList(subsets[i+1:])
-					i += size + 2
-				elif(nextTmp.type == "symbol" and nextTmp.val == "["):
+					size = self.compileExpressionList()
+				elif(None != nextTmp and nextTmp.type == "symbol" and nextTmp.val == "["):
 					## 数组
 					for i in range(MAX):
 						tmp4 = self.tokenizer.next()
@@ -503,38 +497,38 @@ class CompilationEngine:
 				self.outxml(tmp,2)
 			elif(self.isunaryOp(tmp)):
 				self.outxml(tmp,2)
-			else:
-				self.error(tmp)
+
 
 
 		self.indent -= 1
 		self.outxml("</term>")
 		return
-	def compileExpressionList(self, asets):
-		expiresets, size = self.getExpiressionList(asets, "(", ")")
+	def compileExpressionList(self):
+		self.outxml(self.tokenizer.next(), 2)
+		endTag = False
 
-		print(9000002, len(expiresets), expiresets[0].val, len(expiresets[1]))
-		if(len(expiresets) == 2) :
-			return
+		ne = self.tokenizer.advance(1)
+		if(ne.type != "symbol" and ne.val != ")"):
+			self.outxml("<expressionList>")
+			self.indent += 1
+			endTag = True
+			self.compileExpression()
 
-		for i in range(len(expiresets)):
-			tmpi = expiresets[i]
-			if(i == 0):
-				self.outxml(tmpi, 2)		
-				self.outxml("<expressionList>")
-				self.indent += 1
-			elif(isinstance(tmpi, Token)):
-				if(tmpi.val == ")"):
-					self.indent -= 1
-					self.outxml("</expressionList>")
-					self.outxml(tmpi, 2)		
+			for i in range(MAX):
+				tmp = self.tokenizer.advance(1)
+				if(tmp.type == "symbol" and tmp.val == ","):
+					tmp = self.tokenizer.next()
+					self.outxml(tmp, 2)
+					tmp = self.compileExpression()
 				else:
-					self.outxml(tmpi, 2)		
-			else:
-				self.compileExpression(tmpi);
+					break
+			
+		if(endTag):
+			self.indent -= 1
+			self.outxml("</expressionList>")
 
-		
-		return size
+		self.outxml(self.tokenizer.next(), 2)
+		return 
 	def outxml(self, line, type = 1):
 		if(type == 1):
 			self.xmlfile.write(self.getIndent() +  line  + "\n");
@@ -544,7 +538,7 @@ class CompilationEngine:
 			print("invalid type :" + type)
 
 
-	def outline(line):
+	def outline(self, line):
 		self.outputfile.write(line  + "\n");
 	def __init__(self, inputfile, outputfile):
 		self.inputfile =  open(inputfile, "r");
@@ -601,9 +595,12 @@ def start(srouceFileOrDir):
 	return
 
 
-if(len(sys.argv) == 1) :
-  print("not found source file to compiler!");
-  sys.exit();
+   
+if __name__ == "__main__":
+		
+	if(len(sys.argv) == 1) :
+		print("not found source file to compiler!");
+		sys.exit();
 
-srouceFileOrDir  =sys.argv[1];
-start(srouceFileOrDir)
+	srouceFileOrDir  =sys.argv[1];
+	start(srouceFileOrDir)

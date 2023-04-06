@@ -65,12 +65,12 @@ class JackTokenizer:
 
 			# 忽略 注释行
 			if(len(self.linetxt) > 0):
-			  if( re.match(r".*//.*", self.linetxt)):
-			    self.linetxt = self.linetxt[0 : self.linetxt.index("//")]
+				if( re.match(r".*//.*", self.linetxt)):
+					self.linetxt = self.linetxt[0 : self.linetxt.index("//")]
 
-			  self.linetxt = self.linetxt.strip()
-			  if(len(self.linetxt) > 0) :
-			    return True
+				self.linetxt = self.linetxt.strip()
+				if(len(self.linetxt) > 0) :
+					return True
 
 		return
 
@@ -79,8 +79,7 @@ class JackTokenizer:
 		# print(self.tokenIndex, len(self.sourceTokens))
 		j = self.tokenIndex + i
 		if(j >= len(self.sourceTokens)):
-			print("code is invalid")
-			exit()
+			return None
 
 		res =  self.sourceTokens[j]
 		return res
