@@ -173,22 +173,24 @@ class CompilationEngine:
 		tt = self.tokenizer.next()
 		self.outxml(tt, 2)
 		tmp = self.tokenizer.advance(1)
-		if(tmp.type == "symbol" and tmp.val == ")"):
-			self.outxml(self.tokenizer.next(), 2)
-			return
+
 		
 		self.outxml("<parameterList>")	
 		self.indent = self.indent + 1
-		self.outxml(self.tokenizer.next(), 2)
-		self.outxml(self.tokenizer.next(), 2)
-		while True:
-			tmp = self.tokenizer.advance(1)
-			if(tmp.type == "symbol" and tmp.val == ","):
-				self.outxml(self.tokenizer.next(), 2)
-				self.outxml(self.tokenizer.next(), 2)
-				self.outxml(self.tokenizer.next(), 2)
-			else:
-				break
+
+		if(tmp.type == "symbol" and tmp.val == ")"):
+			pass
+		else:
+			self.outxml(self.tokenizer.next(), 2)
+			self.outxml(self.tokenizer.next(), 2)
+			while True:
+				tmp = self.tokenizer.advance(1)
+				if(tmp.type == "symbol" and tmp.val == ","):
+					self.outxml(self.tokenizer.next(), 2)
+					self.outxml(self.tokenizer.next(), 2)
+					self.outxml(self.tokenizer.next(), 2)
+				else:
+					break
 
 		self.indent = self.indent - 1
 		self.outxml("</parameterList>")		
@@ -339,32 +341,28 @@ class CompilationEngine:
 		self.outxml("<letStatement>")
 		self.indent += 1
 		
-		eq = False
-		for i in range(MAX):
-			tmp = self.tokenizer.next()
 
-			if(i == 0):
-				self.outxml(tmp, 2)
-			elif(i == 1 and tmp.type == "identifier"):
-				self.outxml(tmp, 2)
-			elif(i == 2 and tmp.type == "symbol" and tmp.val == "["):
-				self.outxml(tmp, 2)
-				self.compileExpression()
-				self.outxml(self.tokenizer.next(), 2)
-			elif(i >= 2 and tmp.type == "symbol" and tmp.val == "="):
-				eq = True
-				self.outxml(tmp, 2)
-				self.compileExpression()
-		
-				break;
-			else:
-				self.error(tmp)
-				break
+		self.outxml(self.tokenizer.next(), 2);
+		self.outxml(self.tokenizer.next(), 2);
 		tmp = self.tokenizer.next()
-		self.outxml(tmp, 2)
+		if(tmp.type == "symbol" and tmp.val == "["):
+			# a[i] = 1
+			self.outxml(tmp, 2)
+			self.compileExpression()
+			self.outxml(self.tokenizer.next(), 2)
+			self.outxml(self.tokenizer.next(), 2)
+		else:
+			self.outxml(tmp, 2)
+
+		# self.outxml(self.tokenizer.next(), 2)
+		tmp = self.tokenizer.advance(1)
+		self.compileExpression()
+		self.outxml(self.tokenizer.next(), 2)
+		tmp = self.tokenizer.advance(1)
 		self.indent -= 1
 		self.outxml("</letStatement>")
 		return
+	
 	def compileWhile(self):
 		self.outxml("<whileStatement>")
 		self.indent += 1
@@ -471,7 +469,7 @@ class CompilationEngine:
 			"/":"+",
 			"&":"+",
 			"|":"+",
-			'&lt;':"+",
+			"<":"+",
 			">":"+",
 			"=":"+",
 		}
@@ -557,16 +555,25 @@ class CompilationEngine:
 					tmp4 = self.tokenizer.next()
 					self.outxml(tmp4, 2)
 					break
+				elif(None != nextTmp and nextTmp.type == "symbol" and nextTmp.val == "."):
+					self.outxml(tmp, 2)
 				else:
 					self.outxml(tmp, 2)
+					break
+					
 			elif(tmp.type == "symbol" and tmp.val == "("):
 				# 表达式
+				self.outxml(tmp,2)
 				self.compileExpression()
+				tmp = self.tokenizer.next()
+				self.outxml(tmp,2)
+				break
 			elif(tmp.type == "symbol" and (tmp.val == ".")):
 				# 变量
 				self.outxml(tmp,2)
 			elif(self.isunaryOp(tmp)):
 				self.outxml(tmp,2)
+				self.compileTerm()
 			else:
 				self.tokenizer.index(-1)
 				break
@@ -584,7 +591,7 @@ class CompilationEngine:
 		self.indent += 1
 
 		ne = self.tokenizer.advance(1)
-		if(ne.type != "symbol" and ne.val != ")"):
+		if(ne.type != "symbol" or ne.val != ")"):
 	
 			self.compileExpression()
 
@@ -602,11 +609,21 @@ class CompilationEngine:
 
 		self.outxml(self.tokenizer.next(), 2)
 		return 
+	def formatSymbol(self, t):
+		res1 = {
+			"&" :"&amp;",
+			">" :"&gt;",
+			"<" :"&lt;"
+		}
+		if(res1.get(t) != None):
+			return res1.get(t)
+		return t
+
 	def outxml(self, line, type = 1):
 		if(type == 1):
 			self.xmlfile.write(self.getIndent() +  line  + "\n");
 		elif(type == 2):
-			self.outxml("<{0}> {1} </{2}>".format(line.type, line.val, line.type))
+			self.outxml("<{0}> {1} </{2}>".format(line.type, self.formatSymbol(line.val), line.type))
 		else:
 			print("invalid type :" + type)
 

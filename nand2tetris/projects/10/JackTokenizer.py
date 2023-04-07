@@ -157,8 +157,8 @@ class JackTokenizer:
 
 		elif(self.tokenTmp1.find(txt) > -1):
 			txt2 = txt
-			if(txt2 == "<"):
-				txt2 = "&lt;"
+			# if(txt2 == "<"):
+			# 	txt2 = "&lt;"
 
 			res.append(Token(txt2, self.getType(txt), lineno, line))
 			self.parserLine(line, start + alen, end, 1, res, lineno)
@@ -183,7 +183,7 @@ class JackTokenizer:
 	def __init__(self, filepath):
 		self.filepath = filepath
 		self.sourcefile = open(filepath, 'r')
-		self.tokenTmp1 = "{}()[].,;+-*/&|<>=~";
+		self.tokenTmp1 = "{}()[].,;+-*/&|<>=~"
 		self.tokenTmp2 = "|class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return|"
 
 
