@@ -73,9 +73,9 @@ class CompilationEngine:
 		self.compileSubroutine()
 
 		if(self.checkCouple("}")):
+			self.outxml(self.tokenizer.advance(), 2)
 			self.indent = self.indent - 1
 			self.outxml("</class>")
-			self.outxml(tmp, 2)
 
 
 		return
@@ -101,7 +101,7 @@ class CompilationEngine:
 		while(True):
 			i += 1
 			if(False == self.tokenizer. hasMoreCommands()):
-				self.error()
+				break
 			tmp = self.tokenizer.advance()
 			if(i == 0 and tmp.type == "symbol" and tmp.val == "{"):
 				self.symbleStack.push(tmp.val)
@@ -112,12 +112,9 @@ class CompilationEngine:
 		self.compileVarDec()
 		self.compileStatements()
 
-		if(self.checkCouple("}")):
-				self.outxml("</subroutineBody>")
-				self.outxml(tmp, 2)
-
-
-
+		self.outxml(self.tokenizer.next(), 2)
+		self.indent -= 1
+		self.outxml("</subroutineBody>")
 		return
 	def compileSubroutine(self):
 		for i in range(10):
@@ -140,6 +137,9 @@ class CompilationEngine:
 					self.error(tmp)
 					return
 
+		self.indent = self.indent - 1
+		self.outxml("</subroutineDec>")
+
 		return
 	def compileParameterList(self):
 		# like (a1, b2)
@@ -149,11 +149,12 @@ class CompilationEngine:
 				if(i == 0 and tmp.type == "symbol" and ( tmp.val == "(" )):
 					self.symbleStack.push(tmp.val)
 					self.outxml(tmp, 2)
-					self.outxml("<paramterList>")
+					self.outxml("<parameterList>")
 					self.indent = self.indent + 1
 				elif(i > 0 and tmp.type == "symbol" and ( tmp.val == ")" )):
 					self.indent = self.indent - 1
-					self.outxml("</paramterList>")			
+					self.outxml("</parameterList>")		
+					self.outxml(tmp, 2)
 					break			
 				else:
 					argsLen = 0
@@ -190,14 +191,16 @@ class CompilationEngine:
 
 		return
 	def compileVarDec(self):
-		self.outxml("<varDec>")
-		self.indent += 1
+	
 
 		i = -1
 		while(True):
 			i += 1
 			tt = self.tokenizer.advance(1);
 			if(tt.type == "keyword" and tt.val == "var"):
+				self.outxml("<varDec>")
+				self.indent += 1
+
 				tmp = self.tokenizer.next()
 				self.outxml(tmp, 2)
 
@@ -220,6 +223,10 @@ class CompilationEngine:
 						self.outxml(tmp3, 2)
 
 						if(tmp3.type == "symbol" and tmp3.val == ";"):
+							self.indent -= 1
+
+							self.outxml("</varDec>")
+				
 							dotModel = False
 							break
 					else:
@@ -269,33 +276,30 @@ class CompilationEngine:
 				self.error(tmp)
 
 		return
+	def compileSubroutineCall(self):
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		tmp = self.tokenizer.next()
+		self.outxml(tmp, 2)
+		if(tmp.type == "symbol" and tmp.val == "."):
+			# obbbj.method()
+			self.outxml(self.tokenizer.next(), 2)
+			self.compileExpressionList()
+			
+		elif(tmp.type == "symbol" and tmp.val == "("):
+			# mehotd()
+			self.compileExpressionList()
+		else:
+			self.error(tmp)
 	def compileDo(self):
-		# todo 还没搞完
 		self.outxml("<doStatement>")
-		self.indent += 1
-		tmp1 = self.tokenizer.next()
-		self.outxml(tmp1, 2)
-
-		for x in range(1000):
-			tmp2 = self.tokenizer.next()
-			self.outxml(tmp2, 2)
-			if(tmp2.type == "symbol" and tmp2.val == "("):
-				self.compileExpressionList()
-			if(tmp2.type == "symbol" and tmp2.val == ")"):
-				break
-		tmp2 = self.tokenizer.next()
-		if(tmp2.type != "identifier"):
-			self.error(tmp2)
-		tmp3 = self.tokenizer.next()
-		if(tmp3.type != "symbol" and tmp3.val != ";"):
-			self.error(tmp3)
-
-		self.outxml(tmp1)
-		self.outxml(tmp2)
-		self.outxml(tmp3)
-
+		self.indent +=1
+		self.outxml(self.tokenizer.next(), 2)
+		self.compileSubroutineCall()
+		self.outxml(self.tokenizer.next(), 2)
+		
+		self.indent -=1
 		self.outxml("</doStatement>")
-		self.tokenizer.next()
 
 		return
 	def getSubSet(self, startFlag, endFlag):
@@ -333,7 +337,9 @@ class CompilationEngine:
 			elif(i == 1 and tmp.type == "identifier"):
 				self.outxml(tmp, 2)
 			elif(i == 2 and tmp.type == "symbol" and tmp.val == "["):
+				self.outxml(tmp, 2)
 				self.compileExpression()
+				self.outxml(self.tokenizer.next(), 2)
 			elif(i >= 2 and tmp.type == "symbol" and tmp.val == "="):
 				eq = True
 				self.outxml(tmp, 2)
@@ -346,9 +352,12 @@ class CompilationEngine:
 		tmp = self.tokenizer.next()
 		self.outxml(tmp, 2)
 		self.indent -= 1
-		self.outxml("<letStatement>")
+		self.outxml("</letStatement>")
 		return
 	def compileWhile(self):
+		self.outxml("<whileStatement>")
+		self.indent += 1
+		
 		tmp = self.tokenizer.next()
 		self.outxml(tmp, 2)
 		tmp = self.tokenizer.next()
@@ -361,8 +370,22 @@ class CompilationEngine:
 		self.compileStatements()
 		tmp = self.tokenizer.next()
 		self.outxml(tmp, 2)
+	
+		self.indent -= 1
+		self.outxml("</whileStatement>")
 		return
 	def compileReturn(self):
+		self.outxml("<returnStatement>")
+		self.indent += 1
+
+		self.outxml(self.tokenizer.next(), 2)
+		tmp = self.tokenizer.advance(1)
+		if(tmp.type != "symbol" and tmp.val != ";"):
+			self.compileExpression()
+		self.outxml(self.tokenizer.next(), 2)
+
+		self.indent -= 1
+		self.outxml("</returnStatement>")
 		return
 	def compileIf(self):
 		return
@@ -416,7 +439,7 @@ class CompilationEngine:
 			"/":"+",
 			"&":"+",
 			"|":"+",
-			"<":"+",
+			'&lt;':"+",
 			">":"+",
 			"=":"+",
 		}
@@ -495,11 +518,13 @@ class CompilationEngine:
 					size = self.compileExpressionList()
 				elif(None != nextTmp and nextTmp.type == "symbol" and nextTmp.val == "["):
 					## 数组
-					for i in range(MAX):
-						tmp4 = self.tokenizer.next()
-						self.outxml(tmp4, 2)
-						if(tmp4.type == "symbol" and tmp4.val == "]"):
-							break
+					self.outxml(tmp, 2)
+					tmp4 = self.tokenizer.next()
+					self.outxml(tmp4, 2)
+					self.compileExpression()
+					tmp4 = self.tokenizer.next()
+					self.outxml(tmp4, 2)
+					break
 				else:
 					self.outxml(tmp, 2)
 			elif(tmp.type == "symbol" and tmp.val == "("):
@@ -521,13 +546,13 @@ class CompilationEngine:
 		return
 	def compileExpressionList(self):
 		self.outxml(self.tokenizer.next(), 2)
-		endTag = False
+
+		self.outxml("<expressionList>")
+		self.indent += 1
 
 		ne = self.tokenizer.advance(1)
 		if(ne.type != "symbol" and ne.val != ")"):
-			self.outxml("<expressionList>")
-			self.indent += 1
-			endTag = True
+	
 			self.compileExpression()
 
 			for i in range(MAX):
@@ -539,9 +564,8 @@ class CompilationEngine:
 				else:
 					break
 			
-		if(endTag):
-			self.indent -= 1
-			self.outxml("</expressionList>")
+		self.indent -= 1
+		self.outxml("</expressionList>")
 
 		self.outxml(self.tokenizer.next(), 2)
 		return 
