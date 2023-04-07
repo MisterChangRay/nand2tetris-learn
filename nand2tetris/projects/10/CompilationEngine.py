@@ -80,11 +80,29 @@ class CompilationEngine:
 
 		return
 	def compileClassVarDec(self):
-		# self.outxml("<classVarDec>")
-		# self.indent = self.indent + 1
+		tmp = self.tokenizer.advance(1)
+		if(tmp.type == "keyword" and (tmp.val == "static" or tmp.val == "field")):
+			self.outxml("<classVarDec>")
+			self.indent = self.indent + 1
 
-		# self.indent = self.indent - 1
-		# self.outxml("</classVarDec>")
+			self.outxml(self.tokenizer.next(), 2)
+			self.outxml(self.tokenizer.next(), 2)
+			self.outxml(self.tokenizer.next(), 2)
+
+			for i in range(MAX):
+				tmp = self.tokenizer.advance(1)
+				if(tmp.type == "symbol" and tmp.val == ","):
+					tmp = self.tokenizer.next()
+					self.outxml(tmp, 2)
+					tmp = self.tokenizer.next()
+					self.outxml(tmp, 2)
+				else:
+					tmp = self.tokenizer.next()
+					self.outxml(tmp, 2)
+					break
+
+			self.indent = self.indent - 1
+			self.outxml("</classVarDec>")
 		return
 	def checkCouple(self, t):
 		if(False == self.tokenizer. hasMoreCommands()):
