@@ -736,6 +736,7 @@ def eat_let_statement(tokens, n_indent, existing_classes):
             eat_by_value('[', 'symbol', n_indent, optional=True),
             eat_expression(n_indent),
             eat_by_value(']', 'symbol', n_indent)),
+            
         eat_by_value('=', 'symbol', n_indent),
         eat_expression(n_indent),
         eat_by_value(';', 'symbol', n_indent),

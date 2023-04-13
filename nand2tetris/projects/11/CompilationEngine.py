@@ -8,19 +8,19 @@ import traceback
 from pathlib import Path
 
 
-
-
 def CompilationEngine(filepath):
-	def tag_indent(tagName, outIfNone = True):
+	def tag_indent(tagName, expand_none = False):
 		def wapper(fn):
 			def helper( tokens, nedent, *args, **kwargs):
 				res = []
 				takeTokens, tokens = fn( tokens, nedent + 1, *args, **kwargs)
-				if(None == takeTokens and outIfNone == False):
-					res.append(tokenFormat(tagName, ""))
+				if(takeTokens == None and expand_none == True):
+					takeTokens = []
+				if(takeTokens == None):
+					return None, tokens
 				else:
 					res.append(doIndent(nedent, "<{0}>".format(tagName)) )
-					res += takeTokens
+					res += [] if (None == takeTokens) else takeTokens
 					res.append(doIndent(nedent,"</{0}>".format(tagName) ))
 				return res, tokens
 			return helper
@@ -34,110 +34,373 @@ def CompilationEngine(filepath):
 
 	
 	def doIndent( i, token):
-		return (" " * 3) * i + token
+		return (" " * 2) * i + token
 	
-	def take(type, tokens, n_indent, val = None):
+	def take(type, tokens, n_indent, val = None, err = True):
 		tmp = tokens[0]
 		if(None != val):
 			strs = val.split("|")
-			err = True
+			hasErr = True
 			for key in strs:
-				if(tokenFormat(type, val)  == tmp):
-					err = False
+				if(key == "OR"):
+					key = "|"
+				if(tokenFormat(type, key)  == tmp):
+					hasErr = False
 					break
-			if(err):
-				print("compilation val error! except: {0}".format(tmp))
+			if(hasErr):
+				if(err):
+					raise ValueError(f"compilation val error! except:" + tmp)
 				return None, tokens
 		
 		return [doIndent(n_indent, tmp)], tokens[1:]
 	@delay_token_application
-	def takeKeyword(  tokens, n_indent, val):
+	def takeKeyword(  tokens, n_indent, val, err=True):
 		# "class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return"
-		return take("keyword", tokens, n_indent, val)
+		return take("keyword", tokens, n_indent, val, err)
 	@delay_token_application
 	def takeIdentifier( tokens, n_indent):
 		return take("identifier", tokens, n_indent)
+	
 	@delay_token_application
-	def takeSymbol( tokens, n_indent, val):
-		return take("symbol", tokens, n_indent, val)
+	def takeSymbol( tokens, n_indent, val, err = True):
+		return take("symbol", tokens, n_indent, val, err)
+	
 	@delay_token_application
 	def takeInt(self):
 		return take("integerConstant")
 	
-	# int, char, boolean, identifer
+	# int, char, boolean, identifer , void
 	@delay_token_application
-	def takeType( val=None):
-		tmp = tokenizer.next()
-		err = False
-		if(tmp.type == "identifier"):
-			return tmp
-		elif(tmp.type == "keyword"):
-			if(val == None):
-				if( tmp.val == "int" or tmp.val != "char" or tmp.val != "boolean"):
-					return tmp
-			elif(val == tmp.val):
-				return tmp
-		else:
-			print("compilation type error! except:{0}, actual:{1}; line({2}): {3}".format(val, tmp.val, tmp.lineno, tmp.linetxt))
-			
-		return None
+	def takeType(tokens, indent, includeVoid=False, err = True):
+		tmp = tokens[0]
 
-	def applyTakers(tokens, *tasks):
+		if(tmp.find( "identifier") > 0):
+			return [doIndent( indent, tmp )], tokens[1:]
+		elif(tmp .find( "keyword") > 0):
+			if(tmp == tokenFormat("keyword", "int") or 
+      			tmp == tokenFormat("keyword", "char") or 
+				tmp == tokenFormat("keyword", "boolean")):
+				return [doIndent( indent, tmp)], tokens[1:]
+			if(tmp == tokenFormat("keyword", "void") ):
+				return [doIndent( indent, tmp)], tokens[1:]
+		elif(err == True):
+			raise ValueError(f"compilation type error! except: type or identifier ")
+			
+		return None, tokens
+
+	@delay_token_application
+	def applyTakers(tokens,  *tasks, breakNone=True):
 		taked = []
 		for task in tasks:
 			res, tokens = task(tokens)
 			if(res == None):
-				break
+				if(breakNone) :
+					break
+				else:
+					continue
 			else:
 				taked += res
 				
 		return taked if(len(taked) > 0) else None, tokens
-	def takeUtilNone( *tasks):
+	
+	@delay_token_application
+	def takeUtilNone(tokens, *tasks):
 		i = 0
 		taked = []
-		for task in tasks:
-			res = task()
-			if(res == None):
+		ended = False
+		while True:
+			for task in tasks:
+				res, tokens = task(tokens)
+				if(res == None):
+					ended = True
+					break
+				else:
+					taked += res
+					i+=1
+			if(ended == True):
 				break
-			else:
-				taked.append(res)
-				i+=1
-		return taked
+		return taked, tokens
 	
-	@tag_indent("classVarDec")
 	@delay_token_application
+	@tag_indent("classVarDec")
 	def compileClassVarDec(tokens, n_indent):
 		return applyTakers(
-			tokens,
-			takeKeyword("static|field"),
-			takeType(),
-			takeIdentifier(tokens, n_indent),
+			takeKeyword(n_indent, "static|field", err=False),
+			takeType(n_indent),
+			takeIdentifier(n_indent),
 			takeUtilNone(
-				takeSymbol(tokens, n_indent, ","),
-				takeIdentifier(tokens, n_indent)
+				takeSymbol( n_indent, ",", False),
+				takeIdentifier( n_indent)
 			),
-			takeSymbol(tokens, n_indent, ";")
-		)
+			takeSymbol( n_indent, ";")
+		)(tokens)
 		
-		
+	@delay_token_application
+	@tag_indent("subroutineDec")
 	def compileSubroutineDec(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "constructor|function|method", err=False),
+			takeType(n_indent, True),
+			takeIdentifier(n_indent),
+			takeSymbol(n_indent, "("),
+			takeParameterList(n_indent),
+			takeSymbol(n_indent, ")"),
+			takeSubroutineBody(n_indent)
+		)(tokens)
+
+	@delay_token_application
+	@tag_indent("parameterList", expand_none=True)
+	def takeParameterList(tokens, n_indent):
+		return applyTakers(
+			takeType(n_indent, False, False),
+			takeIdentifier(n_indent),
+			takeUtilNone(
+				takeSymbol(n_indent, ",", err=False),
+				takeType(n_indent),
+				takeIdentifier(n_indent)
+			)
+		)(tokens)
 		pass
 
-	def xmlout( *tokens):
-		print(len(tokens))
+	@delay_token_application
+	@tag_indent("subroutineBody")
+	def takeSubroutineBody(tokens, n_indent):
+		return applyTakers(
+	
+			takeSymbol(n_indent, "{"),
+			takeUtilNone(
+				takeVarDec(n_indent),
+			),
+			takeStatements(n_indent),
+			takeSymbol(n_indent, "}")
+		)(tokens)
 
+
+	@delay_token_application
+	@tag_indent("varDec")
+	def takeVarDec(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "var", False),
+			takeType(n_indent, False),
+			takeIdentifier(n_indent),
+			takeUtilNone(
+				takeSymbol(n_indent, ",", False),
+				takeIdentifier(n_indent)
+			),
+			takeSymbol(n_indent, ";")
+		)(tokens)
+
+	@delay_token_application
+	@tag_indent("statements")
+	def takeStatements(tokens, n_indent):
+		res = []
+		while(True):
+			tmp = tokens[0]
+			if(tmp == tokenFormat("keyword", "let")):
+				tmp, tokens = takeStatementLet( n_indent)(tokens)
+				res += tmp
+			elif(tmp == tokenFormat("keyword", "if")):
+				tmp, tokens =  takeStatementIf( n_indent)(tokens)
+				res += tmp
+			elif(tmp == tokenFormat("keyword", "while")):
+				tmp, tokens =  takeStatementWhile( n_indent)(tokens)
+				res += tmp
+			elif(tmp == tokenFormat("keyword", "do")):
+				tmp, tokens =  takeStatementDo( n_indent)(tokens)
+				res += tmp
+			elif(tmp == tokenFormat("keyword", "return")):
+				tmp, tokens =  takeStatementReturn( n_indent)(tokens)
+				res += tmp
+			else:
+				break
+		return res, tokens			
+
+
+	@delay_token_application
+	@tag_indent("letStatement")
+	def takeStatementLet(tokens, n_indent):
+		res = applyTakers(
+		     	takeKeyword(n_indent, "let"),
+			    takeIdentifier(n_indent),
+			    applyTakers(
+		   			takeSymbol(n_indent, "[", False),
+					takeExpression(n_indent),
+					takeSymbol(n_indent, "]")
+		   		),
+				takeSymbol(n_indent, "="),
+				takeExpression(n_indent),
+				takeSymbol(n_indent, ";"),
+
+				breakNone=False
+			 )(tokens, )
+		return res
+	
+	@delay_token_application
+	@tag_indent("expression")
+	def takeExpression(tokens, n_indent):
+		res = applyTakers(
+			takeTerm(n_indent),
+			takeUtilNone(
+				takeOp(n_indent, err = False),
+				takeTerm(n_indent)
+			)
+		)(tokens)
+		return res
 		pass
+	@delay_token_application
+	@tag_indent("ifStatement")
+	def takeStatementIf(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "if"),
+			takeSymbol(n_indent, "("),
+			takeExpression(n_indent),
+			takeSymbol(n_indent, ")"),
+			takeSymbol(n_indent, "{"),
+			takeStatements(n_indent),
+			takeSymbol(n_indent, "}"),
+			applyTakers(
+				takeKeyword(n_indent, "else", err=False),
+				takeSymbol(n_indent, "{"),
+				takeStatements(n_indent),
+				takeSymbol(n_indent, "}"),
+			)
+		)(tokens)
+		pass
+
+	@delay_token_application
+	@tag_indent("term")
+	def takeTerm(tokens, n_indent):
+		tmp = tokens[0]
+		if(tmp.find("<integerConstant>") != -1 or tmp.find("<stringConstant>")  != -1 or tmp.find("<keyword>" )  != -1):
+			return [doIndent(n_indent, tmp)], tokens[1:]
+		elif(tmp.find("<identifier>") != -1):
+			tmp1 = tokens[1]
+			if(tmp1.find("[") != -1):
+				# variable a[b]
+				return applyTakers(
+					takeIdentifier(n_indent),
+					takeSymbol(n_indent, "["),
+					takeExpression(n_indent),
+					takeSymbol(n_indent, "]")
+				)(tokens)
+				pass
+			elif(tmp1.find("(") != -1):
+				# method a()
+				return takeSubroutineCall( n_indent)(tokens)
+			elif(tmp1.find(".") != -1):
+				# method a.b()
+				return takeSubroutineCall( n_indent)(tokens)
+			else:
+				# var name
+				return [doIndent(n_indent, tmp)], tokens[1:]
+		elif(tmp.find("-") != -1 or tmp.find("~") != -1):
+			return applyTakers(
+				takeUnaryOp(n_indent, False),
+				takeTerm(n_indent)
+			)(tokens)
+			pass
+		elif(tmp.find("(") != -1):
+			return applyTakers(
+				takeSymbol( n_indent, "("),
+				takeExpression(n_indent),
+				takeSymbol( n_indent, ")"),
+			)(tokens)
+			pass
+		else:
+			return None, tokens
+			
+	@delay_token_application
+	def takeUnaryOp(tokens, n_indent, err):
+		return takeSymbol(n_indent, val="~|-", err=False)(tokens)
+	
+	@delay_token_application
+	def takeSubroutineCall(tokens, n_indent):
+		tmp = tokens[1]
+		if(tmp.find(tokenFormat("symbol", ".")) != -1):
+			# a.b()
+			return applyTakers(
+				takeIdentifier(n_indent),
+				takeSymbol(n_indent, "."),
+				takeIdentifier(n_indent),
+				takeSymbol(n_indent, "("),
+				takeExpressionList(n_indent),
+				takeSymbol(n_indent, ")"),
+			)(tokens)
+		else:
+			# a()
+			return applyTakers(
+				takeIdentifier(n_indent),
+				takeSymbol(n_indent, "("),
+				takeExpressionList(n_indent),
+				takeSymbol(n_indent, ")"),
+			)(tokens)
+		pass
+
+	@delay_token_application
+	@tag_indent("expressionList", expand_none=True)
+	def takeExpressionList(tokens, n_indent):
+		return applyTakers(
+			takeExpression(n_indent),
+			takeUtilNone(
+				takeSymbol(n_indent, ",", False),
+				takeExpression(n_indent)
+			)
+		)(tokens)
+		pass
+	@delay_token_application
+	def takeOp(tokens, n_indent, err=True):
+		return takeSymbol(n_indent, "+|-|*|/|&|OR|<|>|=", err=err)(tokens)
+	
+	@delay_token_application
+	@tag_indent("whileStatement")
+	def takeStatementWhile(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "while"),
+			takeSymbol(n_indent, "("),
+			takeExpression(n_indent),
+			takeSymbol(n_indent, ")"),
+			takeSymbol(n_indent, "{"),
+			takeStatements(n_indent),
+			takeSymbol(n_indent, "}"),
+		)(tokens)
+		pass
+	@delay_token_application
+	@tag_indent("doStatement")
+	def takeStatementDo(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "do"),
+			takeSubroutineCall(n_indent),
+			takeSymbol(n_indent, ";")
+		)(tokens)
+		pass
+	@delay_token_application
+	@tag_indent("returnStatement")
+	def takeStatementReturn(tokens, n_indent):
+		return applyTakers(
+			takeKeyword(n_indent, "return"),
+			applyTakers(
+	       		takeExpression(n_indent)
+			),
+			takeSymbol(n_indent, ";"),
+			breakNone=False
+		)(tokens)
+		pass
+
 
 	@tag_indent("class")
 	def compileClass( tokens, n_indent):
 		res = applyTakers(
-			tokens, 
 			takeKeyword( n_indent, "class"),
 			takeIdentifier( n_indent),
 			takeSymbol( n_indent, "{"),
-			compileClassVarDec(n_indent),
-			# compileSubroutineDec( n_indent)
-		)
+			takeUtilNone(
+				compileClassVarDec(n_indent),
+			),
+			takeUtilNone(
+				compileSubroutineDec( n_indent)
+			),
+			takeSymbol( n_indent, "}"),
+		)(tokens)
 		return res
 		
 	
@@ -146,19 +409,12 @@ def CompilationEngine(filepath):
 	# start compile
 	tokens = tokenizer(filepath)
 	res = compileClass(tokens, 0)
+	# xmlout(res)
 
-	# print result
-	for i in res[0]:
-		print(i)
-		pass
-	return
+	return res
 
 def tokenFormat(tag, val):
 	res = "<{0}> {1} </{2}>".format(tag, val, tag)
-	res.replace(
-        '<symbol> < </symbol>', '<symbol> &lt; </symbol>').replace(
-        '<symbol> > </symbol>', '<symbol> &gt; </symbol>').replace(
-        '<symbol> & </symbol>', '<symbol> &amp; </symbol>')
 	return res
 
 def tokenizer(file):
@@ -173,11 +429,26 @@ def tokenizer(file):
 
 def filename(file):
 	return Path(file).stem
+def xmlformat(res):
+	res = res.replace(
+	'<symbol> < </symbol>', '<symbol> &lt; </symbol>').replace(
+	'<symbol> > </symbol>', '<symbol> &gt; </symbol>').replace(
+	'<symbol> & </symbol>', '<symbol> &amp; </symbol>')
+	return res
 
+def xmlout( tokens, file):
+	file = open(file, "w")
+	# print result
+	for i in tokens[0]:
+		file.write(xmlformat(i) + "\n")
+	file.close()
+	pass
 def parseFile(file):
 	outputfile = file[:len(file)-5]
+	res = CompilationEngine(file)
+	xmlout( res, outputfile + "3.xml")
 	outputfile = outputfile + ".vm"
-	CompilationEngine(file)
+
 	return
 
 def scanfiles(dir):
@@ -216,8 +487,8 @@ def start(srouceFileOrDir):
 if __name__ == "__main__":
 		
 	if(len(sys.argv) == 1) :
-		print("not found source file to compiler!");
-		sys.exit();
+		print("not found source file to compiler!")
+		sys.exit()
 
-	srouceFileOrDir  =sys.argv[1];
+	srouceFileOrDir  =sys.argv[1]
 	start(srouceFileOrDir)
