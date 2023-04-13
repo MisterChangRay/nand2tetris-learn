@@ -26,7 +26,7 @@ class SymbolTable:
 			return False
 		return True
 
-	def __init__(self, parent):
+	def __init__(self, parent = None):
 		self.tables = dict()
 		self.next = None
 		self.parent = None
@@ -43,7 +43,7 @@ class Symbol:
 		pass
 	
 
-def CompilationEngine(filepath):
+def CompilationEngine(filepath, symbolTable):
 	def tag_indent(tagName, expand_none = False):
 		def wapper(fn):
 			def helper( tokens, nedent, *args, **kwargs):
@@ -72,7 +72,8 @@ def CompilationEngine(filepath):
 		return (" " * 2) * i + token
 	
 	def take(type, tokens, n_indent, val = None, err = True):
-		tmp = tokens[0]
+		token = tokens[0]
+		tmp = token.tag
 		if(None != val):
 			strs = val.split("|")
 			hasErr = True
@@ -107,7 +108,8 @@ def CompilationEngine(filepath):
 	# int, char, boolean, identifer , void
 	@delay_token_application
 	def takeType(tokens, indent, includeVoid=False, err = True):
-		tmp = tokens[0]
+		token = tokens[0]
+		tmp = token.tag
 
 		if(tmp.find( "identifier") > 0):
 			return [doIndent( indent, tmp )], tokens[1:]
@@ -230,7 +232,8 @@ def CompilationEngine(filepath):
 	def takeStatements(tokens, n_indent):
 		res = []
 		while(True):
-			tmp = tokens[0]
+			token = tokens[0]
+			tmp = token.tag
 			if(tmp == tokenFormat("keyword", "let")):
 				tmp, tokens = takeStatementLet( n_indent)(tokens)
 				res += tmp
@@ -305,11 +308,13 @@ def CompilationEngine(filepath):
 	@delay_token_application
 	@tag_indent("term")
 	def takeTerm(tokens, n_indent):
-		tmp = tokens[0]
+		token = tokens[0]
+		tmp = token.tag
 		if(tmp.find("<integerConstant>") != -1 or tmp.find("<stringConstant>")  != -1 or tmp.find("<keyword>" )  != -1):
 			return [doIndent(n_indent, tmp)], tokens[1:]
 		elif(tmp.find("<identifier>") != -1):
-			tmp1 = tokens[1]
+			token1 = tokens[1]
+			tmp1 = token1.tag
 			if(tmp1.find("[") != -1):
 				# variable a[b]
 				return applyTakers(
@@ -350,7 +355,9 @@ def CompilationEngine(filepath):
 	
 	@delay_token_application
 	def takeSubroutineCall(tokens, n_indent):
-		tmp = tokens[1]
+		token = tokens[1]
+		tmp = token.tag
+
 		if(tmp.find(tokenFormat("symbol", ".")) != -1):
 			# a.b()
 			return applyTakers(
@@ -457,7 +464,8 @@ def tokenizer(file):
 	tokenizer = JackTokenizer(file)
 	while(tokenizer.hasMoreCommands()) :
 		tmp = tokenizer.advance()
-		res.append(tokenFormat(tmp.type, tmp.val))
+		tmp.tag = tokenFormat(tmp.type, tmp.val)
+		res.append(tmp)
 	return res
 
 
@@ -480,7 +488,7 @@ def xmlout( tokens, file):
 	pass
 def parseFile(file):
 	outputfile = file[:len(file)-5]
-	res = CompilationEngine(file)
+	res = CompilationEngine(file, SymbolTable())
 	xmlout( res, outputfile + "3.xml")
 	outputfile = outputfile + ".vm"
 
@@ -490,7 +498,6 @@ def scanfiles(dir):
 	for filepath,dirnames,filenames in os.walk(dir):
 		for filename in filenames:
 			if(filename.endswith(".jack")):
-
 				parseFile(os.path.join(filepath, filename))
 	return
 
