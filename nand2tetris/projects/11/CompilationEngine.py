@@ -43,7 +43,7 @@ class Symbol:
 		pass
 	
 
-def CompilationEngine(filepath, symbolTable):
+def CompilationEngine(filepath, symbolTable:SymbolTable):
 	def tag_indent(tagName, expand_none = False):
 		def wapper(fn):
 			def helper( tokens, nedent, *args, **kwargs):
@@ -95,11 +95,13 @@ def CompilationEngine(filepath, symbolTable):
 		return take("keyword", tokens, n_indent, val, err)
 	@delay_token_application
 	def takeIdentifier( tokens, n_indent):
-		return take("identifier", tokens, n_indent)
+		res = take("identifier", tokens, n_indent)
+		return res
 	
 	@delay_token_application
 	def takeSymbol( tokens, n_indent, val, err = True):
-		return take("symbol", tokens, n_indent, val, err)
+		res =  take("symbol", tokens, n_indent, val, err)
+		return res
 	
 	@delay_token_application
 	def takeInt(self):
