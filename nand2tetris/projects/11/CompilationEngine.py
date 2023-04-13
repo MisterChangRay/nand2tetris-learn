@@ -405,7 +405,7 @@ def CompilationEngine(filepath):
 		
 	
 
-
+	print("=====   compiling:" + filepath)
 	# start compile
 	tokens = tokenizer(filepath)
 	res = compileClass(tokens, 0)
