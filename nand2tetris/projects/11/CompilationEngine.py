@@ -7,16 +7,16 @@ from JackTokenizer import Token
 import traceback
 from pathlib import Path
 
-class SymbolTable:
+class SymbolTree:
 	def add(self, name, dataType, type):
 		if(self.hasSymbol(name)):
-			raise ValueError(f"compilation type error! has more definetion " + name)
+			raise ValueError(f"compilation type error! has more definetion :" + name)
 		self.tables[name] = Symbol(name, dataType, type, self.countType(type))
 
 	def countType(self, type):
 		count = 0
 		for k in self.tables:
-			if(k.type == type):
+			if(self.tables[k].type == type):
 				count += 1
 		return count
 
@@ -25,14 +25,18 @@ class SymbolTable:
 		if(res == None):
 			return False
 		return True
+	def remove(self):
+		self.parent.next.remove(self)
+		return
+	def addChild(self, child):
+		self.next.append(child)
+		child.parent = self
+		pass
 
-	def __init__(self, parent = None):
+	def __init__(self):
 		self.tables = dict()
-		self.next = None
 		self.parent = None
-		if(parent != None):
-			self.parent  = parent
-			parent.next = self
+		self.next = []
 		pass
 class Symbol:
 	def __init__(self, name, dataType, type, index):
@@ -43,7 +47,7 @@ class Symbol:
 		pass
 	
 
-def CompilationEngine(filepath, symbolTable:SymbolTable):
+def CompilationEngine(filepath, symbolTree:SymbolTree):
 	def tag_indent(tagName, expand_none = False):
 		def wapper(fn):
 			def helper( tokens, nedent, *args, **kwargs):
@@ -54,9 +58,14 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 				if(takeTokens == None):
 					return None, tokens
 				else:
-					res.append(doIndent(nedent, "<{0}>".format(tagName)) )
+					t = Token(None, tagName, None, None)
+					t.tag = doIndent(nedent, "<{0}>".format(tagName)) 
+					res.append(t)
 					res += [] if (None == takeTokens) else takeTokens
-					res.append(doIndent(nedent,"</{0}>".format(tagName) ))
+
+					t = Token(None, tagName, None, None)
+					t.tag = doIndent(nedent, "</{0}>".format(tagName)) 
+					res.append(t)
 				return res, tokens
 			return helper
 		return wapper
@@ -87,8 +96,8 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 				if(err):
 					raise ValueError(f"compilation val error! except:" + tmp)
 				return None, tokens
-		
-		return [doIndent(n_indent, tmp)], tokens[1:]
+		token.tag = doIndent(n_indent, tmp)
+		return [token], tokens[1:]
 	@delay_token_application
 	def takeKeyword(  tokens, n_indent, val, err=True):
 		# "class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return"
@@ -114,14 +123,19 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 		tmp = token.tag
 
 		if(tmp.find( "identifier") > 0):
-			return [doIndent( indent, tmp )], tokens[1:]
+			token.tag = doIndent( indent, tmp )
+			return [token], tokens[1:]
 		elif(tmp .find( "keyword") > 0):
 			if(tmp == tokenFormat("keyword", "int") or 
       			tmp == tokenFormat("keyword", "char") or 
 				tmp == tokenFormat("keyword", "boolean")):
-				return [doIndent( indent, tmp)], tokens[1:]
+				
+				token.tag = doIndent( indent, tmp )
+				return [token], tokens[1:]
 			if(tmp == tokenFormat("keyword", "void") ):
-				return [doIndent( indent, tmp)], tokens[1:]
+
+				token.tag = doIndent( indent, tmp )
+				return [token], tokens[1:]
 		elif(err == True):
 			raise ValueError(f"compilation type error! except: type or identifier ")
 			
@@ -163,7 +177,7 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 	@delay_token_application
 	@tag_indent("classVarDec")
 	def compileClassVarDec(tokens, n_indent):
-		return applyTakers(
+		res = applyTakers(
 			takeKeyword(n_indent, "static|field", err=False),
 			takeType(n_indent),
 			takeIdentifier(n_indent),
@@ -173,24 +187,49 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 			),
 			takeSymbol( n_indent, ";")
 		)(tokens)
+
+		readTokens = res[0]
+		if(None == readTokens or len(readTokens) == 0):
+			return res
+
+		# generator symbol table
+		type = readTokens[0].val
+		dataType = readTokens[1].val
+		symbolTree.add(readTokens[2].val, dataType, type)
 		
+		i = 2
+		j = len(readTokens) - 2
+		while i < j:
+			symbolTree.add(readTokens[i + 2].val, dataType, type)
+			i += 2
+		return res
+
+	
 	@delay_token_application
 	@tag_indent("subroutineDec")
 	def compileSubroutineDec(tokens, n_indent):
-		return applyTakers(
+		tmp = SymbolTree()
+		res = applyTakers(
 			takeKeyword(n_indent, "constructor|function|method", err=False),
 			takeType(n_indent, True),
 			takeIdentifier(n_indent),
 			takeSymbol(n_indent, "("),
-			takeParameterList(n_indent),
+			takeParameterList(n_indent, tmp),
 			takeSymbol(n_indent, ")"),
-			takeSubroutineBody(n_indent)
+			takeSubroutineBody(n_indent, tmp)
 		)(tokens)
 
+		if(res[0] != None and len(res[0]) > 0):
+			fnType = res[0][0]
+			fnReturnType = res[0][1]
+			fnName = res[0][2]
+			symbolTree.add(fnName, fnReturnType, fnType)
+			symbolTree.addChild(tmp)
+		return res
 	@delay_token_application
 	@tag_indent("parameterList", expand_none=True)
-	def takeParameterList(tokens, n_indent):
-		return applyTakers(
+	def takeParameterList(tokens, n_indent, thisSymbol:SymbolTree):
+		res = applyTakers(
 			takeType(n_indent, False, False),
 			takeIdentifier(n_indent),
 			takeUtilNone(
@@ -199,26 +238,46 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 				takeIdentifier(n_indent)
 			)
 		)(tokens)
-		pass
+	
+	
+		readTokens = res[0]
+		if(None == readTokens or len(readTokens) == 0):
+			return res
+
+		# generator var symbol table
+		type = readTokens[0].val
+		name = readTokens[1].val
+		thisSymbol.add(name, type, "arguments")
+		
+		i = 2
+		j = len(readTokens) - 2
+		while i < j:
+			type = readTokens[i + 1].val
+			name = readTokens[i + 2].val
+			thisSymbol.add(name, type, "arguments")
+			i += 3
+		return res
+	
 
 	@delay_token_application
 	@tag_indent("subroutineBody")
-	def takeSubroutineBody(tokens, n_indent):
-		return applyTakers(
-	
+	def takeSubroutineBody(tokens, n_indent, thisSymbol:SymbolTree):
+		res = applyTakers(
 			takeSymbol(n_indent, "{"),
 			takeUtilNone(
-				takeVarDec(n_indent),
+				takeVarDec(n_indent, thisSymbol),
 			),
 			takeStatements(n_indent),
 			takeSymbol(n_indent, "}")
 		)(tokens)
 
+		return res
+
 
 	@delay_token_application
 	@tag_indent("varDec")
-	def takeVarDec(tokens, n_indent):
-		return applyTakers(
+	def takeVarDec(tokens, n_indent, thisSymbol:SymbolTree):
+		res = applyTakers(
 			takeKeyword(n_indent, "var", False),
 			takeType(n_indent, False),
 			takeIdentifier(n_indent),
@@ -228,7 +287,22 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 			),
 			takeSymbol(n_indent, ";")
 		)(tokens)
-
+		
+		readTokens = res[0]
+		if(None == readTokens or len(readTokens) == 0):
+			return res
+		
+		# generator symbol table
+		type = readTokens[0].val
+		dataType = readTokens[1].val
+		thisSymbol.add(readTokens[2].val, dataType, type)
+		
+		i = 2
+		j = len(readTokens) - 2
+		while i < j:
+			thisSymbol.add(readTokens[i + 2].val, dataType, type)
+			i += 2
+		return res
 	@delay_token_application
 	@tag_indent("statements")
 	def takeStatements(tokens, n_indent):
@@ -313,7 +387,8 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 		token = tokens[0]
 		tmp = token.tag
 		if(tmp.find("<integerConstant>") != -1 or tmp.find("<stringConstant>")  != -1 or tmp.find("<keyword>" )  != -1):
-			return [doIndent(n_indent, tmp)], tokens[1:]
+			token.tag = doIndent(n_indent, tmp)
+			return [token], tokens[1:]
 		elif(tmp.find("<identifier>") != -1):
 			token1 = tokens[1]
 			tmp1 = token1.tag
@@ -334,7 +409,8 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 				return takeSubroutineCall( n_indent)(tokens)
 			else:
 				# var name
-				return [doIndent(n_indent, tmp)], tokens[1:]
+				token.tag = doIndent(n_indent, tmp)
+				return [token], tokens[1:]
 		elif(tmp.find("-") != -1 or tmp.find("~") != -1):
 			return applyTakers(
 				takeUnaryOp(n_indent, False),
@@ -441,7 +517,7 @@ def CompilationEngine(filepath, symbolTable:SymbolTable):
 				compileClassVarDec(n_indent),
 			),
 			takeUtilNone(
-				compileSubroutineDec( n_indent)
+				compileSubroutineDec(n_indent)
 			),
 			takeSymbol( n_indent, "}"),
 		)(tokens)
@@ -475,11 +551,11 @@ def tokenizer(file):
 def filename(file):
 	return Path(file).stem
 def xmlformat(res):
-	res = res.replace(
+	return res.tag.replace(
 	'<symbol> < </symbol>', '<symbol> &lt; </symbol>').replace(
 	'<symbol> > </symbol>', '<symbol> &gt; </symbol>').replace(
 	'<symbol> & </symbol>', '<symbol> &amp; </symbol>')
-	return res
+
 
 def xmlout( tokens, file):
 	file = open(file, "w")
@@ -490,7 +566,8 @@ def xmlout( tokens, file):
 	pass
 def parseFile(file):
 	outputfile = file[:len(file)-5]
-	res = CompilationEngine(file, SymbolTable())
+	symbolTree = SymbolTree()
+	res = CompilationEngine(file,symbolTree )
 	xmlout( res, outputfile + "3.xml")
 	outputfile = outputfile + ".vm"
 
