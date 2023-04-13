@@ -9,9 +9,10 @@ from pathlib import Path
 
 class SymbolTree:
 	def add(self, name, dataType, type):
-		if(self.hasSymbol(name)):
-			raise ValueError(f"compilation type error! has more definetion :" + name)
-		self.tables[name] = Symbol(name, dataType, type, self.countType(type))
+		# constructor|function|method
+		if(self.hasSymbol(self.buildKey(name, type))):
+			raise ValueError(f"compilation type error：identifier has already defined! -> " + name)
+		self.tables[self.buildKey(name, type)] = Symbol(name, dataType, type, self.countType(type))
 
 	def countType(self, type):
 		count = 0
@@ -19,10 +20,17 @@ class SymbolTree:
 			if(self.tables[k].type == type):
 				count += 1
 		return count
+	def buildKey(self, name, type):
+		# 作用域内函数不能重名
+		type0 = type.replace("constructor", "function").replace("method", "function")
+		# 作用域内 static 和 field 不能重名
+		type0 = type0.replace("static", "field")
+		
+		return "{0}_{1}".format(name, type0)
 
 	def hasSymbol(self, name):
 		res = self.tables.get(name)
-		if(res == None):
+		if(res == None or res.type != type):
 			return False
 		return True
 	def remove(self):
@@ -220,9 +228,9 @@ def CompilationEngine(filepath, symbolTree:SymbolTree):
 		)(tokens)
 
 		if(res[0] != None and len(res[0]) > 0):
-			fnType = res[0][0]
-			fnReturnType = res[0][1]
-			fnName = res[0][2]
+			fnType = res[0][0].val
+			fnReturnType = res[0][1].val
+			fnName = res[0][2].val
 			symbolTree.add(fnName, fnReturnType, fnType)
 			symbolTree.addChild(tmp)
 		return res

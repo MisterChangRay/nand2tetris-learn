@@ -1,7 +1,7 @@
 
 class SymbolTable:
 	def add(self, name, dataType, type):
-		if(self.hasSymbol(name)):
+		if(self.hasSymbol(name, type)):
 			raise ValueError(f"compilation type error! has more definetion " + name)
 		self.tables[name] = Symbol(name, dataType, type, self.countType(type) + 1)
 
@@ -12,9 +12,9 @@ class SymbolTable:
 				count += 1
 		return count
 
-	def hasSymbol(self, name):
+	def hasSymbol(self, name, type):
 		res = self.tables.get(name)
-		if(res == None):
+		if(res == None or res.type != type):
 			return False
 		return True
 
