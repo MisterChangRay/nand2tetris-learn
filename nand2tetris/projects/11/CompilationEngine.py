@@ -463,13 +463,15 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				tmp, readIndex, thisSymbol1 = takeStatementLet( n_indent)(readIndex, thisSymbol)
 				res += tmp
 			elif(tmp == tokenFormat("keyword", "if")):
-				ifIndex = readIndex
-				writeStatementIf(n_indent, 1, ifIndex)(readIndex, thisSymbol)
+				startIndex = readIndex
+				writeStatementIf(n_indent, 1, startIndex)(readIndex, thisSymbol)
 				tmp, readIndex, thisSymbol1 =  takeStatementIf( n_indent)(readIndex, thisSymbol)
-				writeStatementIf(n_indent, 3, ifIndex)(readIndex, thisSymbol)
+				writeStatementIf(n_indent, 3, startIndex)(readIndex, thisSymbol)
 				res += tmp
 			elif(tmp == tokenFormat("keyword", "while")):
+				startIndex = readIndex
 				tmp, readIndex, thisSymbol1 =  takeStatementWhile( n_indent)(readIndex, thisSymbol)
+				writeWhileCode(n_indent, 2, startIndex)(readIndex, thisSymbol)
 				res += tmp
 			elif(tmp == tokenFormat("keyword", "do")):
 				tmp, readIndex, thisSymbol1 =  takeStatementDo( n_indent)(readIndex, thisSymbol)
@@ -734,17 +736,40 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	def takeOp(readIndex, thisSymbol:SymbolTree, n_indent, err=True):
 		res = takeSymbol(n_indent, "+|-|*|/|&|OR|<|>|=", err=err)(readIndex, thisSymbol)
 		return res[0], res[1], thisSymbol
-	
+
+	@delay_token_application
+	def writeWhileCode(readIndex, thisSymbol:SymbolTree, n_indent, type, index):
+		starttag = "while.satrt{0}".format(index)
+		endtag = "while.end{0}".format(index)
+
+		if(1 == type):
+			assemberEngine.writeLabel(starttag)
+			# if start
+			# 取反, 大于0则跳到else
+			assemberEngine.writeArithmetic("!")
+			# if > 0 
+			assemberEngine.writeGoto(1, endtag)
+
+		if(2 == type):
+			assemberEngine.writeLabel(endtag)
+		if(3 == type):
+			assemberEngine.writeGoto(2, starttag)
+   
+   
+		return "WRITE_CODE", readIndex, thisSymbol
+
 	@delay_token_application
 	@tag_indent("whileStatement")
 	def takeStatementWhile(readIndex, thisSymbol:SymbolTree, n_indent):
 		res = applyTakers(
 			takeKeyword(n_indent, "while", err=True),
 			takeSymbol(n_indent, "("),
+   			writeWhileCode(n_indent, 1, readIndex), # write start label
 			takeExpression(n_indent),
 			takeSymbol(n_indent, ")"),
 			takeSymbol(n_indent, "{"),
 			takeStatements(n_indent),
+			writeWhileCode(n_indent, 3, readIndex), # write end label
 			takeSymbol(n_indent, "}"),
 		)(readIndex,thisSymbol)
   
