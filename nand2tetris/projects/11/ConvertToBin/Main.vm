@@ -1,9 +1,9 @@
 function Main.fillMemory 0 
 label while.satrt17
-neg
-goto-if while.end17 
 push constant 0 
 gt
+neg
+goto-if while.end17 
 call Memory.poke 2 
 push constant 1 
 sub

@@ -744,8 +744,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 
 		if(1 == type):
 			assemberEngine.writeLabel(starttag)
-			# if start
-			# 取反, 大于0则跳到else
+		if(4 == type):
 			assemberEngine.writeArithmetic("!")
 			# if > 0 
 			assemberEngine.writeGoto(1, endtag)
@@ -766,6 +765,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeSymbol(n_indent, "("),
    			writeWhileCode(n_indent, 1, readIndex), # write start label
 			takeExpression(n_indent),
+			writeWhileCode(n_indent, 4, readIndex), # write jump
 			takeSymbol(n_indent, ")"),
 			takeSymbol(n_indent, "{"),
 			takeStatements(n_indent),
