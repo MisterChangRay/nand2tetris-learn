@@ -9,6 +9,8 @@ from pathlib import Path
 
 
 class AssemberEngine:
+	def done(self):
+		self.vmfile.close()
 	def writePop(self, *args):
 		self.outline("pop", args)
 		pass
@@ -50,10 +52,30 @@ class AssemberEngine:
 		self.outline("call", args)
 		
 		pass
-	def writeFunction(self, name, localNum, type):
+	def writeFunction(self, clzName, fnName, fnType, fnLocalVarCount, clzzVarCount ):
 		# type : constructor|function|method
   		# localNum : 局部变量表个数
-		self.vmfile.write("function {0} {1}\n".format(name, localNum))
+		if(fnType == "function" ):
+			# static method
+			fnName = "{0}.{1}".format(clzName, fnName)
+			self.vmfile.write("function {0} {1}\n".format(fnName, fnLocalVarCount))
+		elif(fnType == "constructor"):
+			# constructor method
+			fnName = "{0}.{1}".format(clzName, fnName)
+			self.vmfile.write("function {0} {1}\n".format(fnName, fnLocalVarCount))
+			self.writePush("constant", clzzVarCount)
+			self.writeCall("Memory.alloc", 1)
+			self.writePop("pointer", 0)
+			pass
+		elif(fnType == "method"):
+			# instance method
+			fnName = "{0}.{1}".format(clzName, fnName)
+			self.vmfile.write("function {0} {1}\n".format(fnName, fnLocalVarCount))
+			self.writePush("argument", 0)
+			self.writePop("pointer", 0)
+			pass
+		
+		
 		pass
 	def flsh(self):
 		pass
@@ -87,6 +109,20 @@ class SymbolTree:
 				.replace("static", "field") \
 				.replace("argument", "var") 
 		return type
+	def hasSymbol(self, name):
+		this = self
+		while(True):
+			kname = self.key(name, "field")
+			if(this.tables.get(kname) != None):
+				return True
+			kname = self.key(name, "var")
+			if(this.tables.get(kname) != None):
+				return True
+			if(this.parent != None):
+				this = this.parent
+			else :
+				break
+		return False
 	def getSymbol(self, name):
 		this = self
 		while(True):
@@ -144,6 +180,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	clzName = None
 	fnLocalVarCount = 0
 	globalLabelIndex = 0
+	clzzVarCount = 0
  
 	def tag_indent(tagName, expand_none = False):
 		def wapper(fn):
@@ -244,6 +281,9 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				pass
 			if(symbolType == "var" or symbolType == "field"):
 				nonlocal fnLocalVarCount
+				nonlocal clzzVarCount
+				if(symbolType == "field"):
+					clzzVarCount += 1
     
 				type = tokens[readIndex - 2].val
 				dataType = tokens[readIndex - 1].val
@@ -256,6 +296,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					next = tokens[nextIndex ]
 					if(next.type == "symbol" and next.val == ","):
 						fnLocalVarCount += 1
+						if(symbolType == "field"):
+							clzzVarCount += 1
 						name = tokens[nextIndex + 1].val
 						symbolTree.add(name, dataType, type)
 						nextIndex += 2
@@ -398,7 +440,6 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeSymbol(n_indent, ")"),
 			takeSubroutineBody(n_indent, readIndex)
 		)(readIndex, thisSymbolTree)
-		
 		return res[0], res[1], thisSymbolTree
 		
 	@delay_token_application
@@ -424,8 +465,12 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		# write label of function
 		nonlocal fnLocalVarCount
 		nonlocal clzName
-		fnName = "{0}.{1}".format(clzName, tokens[fnStartReadIndex + 2].val)
-		assemberEngine.writeFunction(fnName, fnLocalVarCount,tokens[readIndex - 4].val )
+		nonlocal clzzVarCount
+  
+		fnType =  tokens[fnStartReadIndex ].val
+		fnResType =  tokens[fnStartReadIndex + 1].val
+		fnName = tokens[fnStartReadIndex + 2].val
+		assemberEngine.writeFunction( clzName, fnName, fnType, fnLocalVarCount, clzzVarCount )
 		
 		return "WRITE_CODE", readIndex, thisSymbol
 
@@ -539,15 +584,15 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	
 		return res[0], res[1], thisSymbol
 
-	opToken = None
+	opToken = []
 	@delay_token_application
 	def writeOpCode(readIndex, thisSymbol:SymbolTree , n_indent, type):
 		nonlocal opToken
 		
 		if(type == 1):
-			opToken = tokens[readIndex - 1]
+			opToken.append ( tokens[readIndex - 1])
 		if(type == 2):
-			assemberEngine.writeArithmetic(opToken.val)	
+			assemberEngine.writeArithmetic(opToken.pop().val)	
 			
 		return "WRITE_CODE", readIndex, thisSymbol
 		
@@ -572,7 +617,19 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	def writeStatementIf(readIndex, thisSymbol:SymbolTree , n_indent, type, index):
 		tagelse = "if_{0}_else".format(index)
 		tagend = "if_{0}_end".format(index)
-		
+		# code exrample:
+		'''
+			push true
+			if-goto else
+			code1
+			code2
+			goto end
+			label else
+			code1
+			code2
+			goto end
+			label end
+		'''
 		# type : 标签位置
 		if(type == 1):
 			# if start
@@ -630,7 +687,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		tmp = token.tag
 		if(tmp.find("<integerConstant>") != -1 or tmp.find("<stringConstant>")  != -1 or tmp.find("<keyword>" )  != -1):
 			token.tag = doIndent(n_indent, tmp)
-
+			# keywrod : int|char|boolean|void|true|false|null|this
+   
 			if(tmp.find("<integerConstant>") != -1):
 				assemberEngine.writePush("constant", token.val)
 			if(tmp.find("<stringConstant>") != -1):
@@ -643,7 +701,11 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				if(token.val == "true"):
 					assemberEngine.writeArithmetic("~")
 				pass
-			
+			if(token.val == "this"):
+				assemberEngine.writePush("pointer", 0)
+			if(token.val == "null"):
+				assemberEngine.writePush("constant", -1)
+    
 			return [token], readIndex+1, thisSymbol
 		elif(tmp.find("<identifier>") != -1):
 			token1 = tokens[readIndex + 1]
@@ -717,38 +779,37 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		tmp = token.tag
 
 		if(tmp.find(tokenFormat("symbol", ".")) != -1):
-			fnName = tokens[readIndex].val + tokens[readIndex+1].val  + tokens[readIndex+2].val
+			aname = tokens[readIndex].val 
+			fnName = aname + tokens[readIndex+1].val  + tokens[readIndex+2].val
 			# for static function a.b()
 			res = applyTakers(
 				takeIdentifier(n_indent),
 				takeSymbol(n_indent, "."),
 				takeIdentifier(n_indent),
 				takeSymbol(n_indent, "("),
-				takeExpressionList(n_indent, fnName),
+				takeExpressionList(n_indent, fnName, aname, 1),
 				takeSymbol(n_indent, ")"),
 			)(readIndex,thisSymbol)
-			
 		
+   
 		else:
-			fnName = tokens[readIndex].val
+			fnName = "{0}.{1}".format(clzName, tokens[readIndex].val)
 			# for instance method a()
 			res = applyTakers(
 				takeIdentifier(n_indent),
 				takeSymbol(n_indent, "("),
-				takeExpressionList(n_indent, fnName),
+				takeExpressionList(n_indent, fnName, fnName, 2),
 				takeSymbol(n_indent, ")"),
 			)(readIndex,thisSymbol)
 
-			# write call
-			# 处理this
-			assemberEngine.writeCall( )
+	
 
 		return res[0], res[1], thisSymbol
 		pass
 
 	@delay_token_application
 	@tag_indent("expressionList", expand_none=True)
-	def takeExpressionList(readIndex, thisSymbol:SymbolTree, n_indent, fnName):
+	def takeExpressionList(readIndex, thisSymbol:SymbolTree, n_indent, fnName, varname, type):
 		# 只有 call 才会调用到这里
 		# 实际这个函数是解析参数个数的
 		res = applyTakers(
@@ -768,7 +829,21 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					paramLen += 1
 			pass
   		# write call 
-		assemberEngine.writeCall(fnName, paramLen )
+		if(type == 1):
+			# like a.b()
+			# a maby is var
+			if(True == thisSymbol.hasSymbol(varname)):
+				paramLen += 1
+				symbol = thisSymbol.getSymbol(varname)
+				fnName = fnName.replace(varname, symbol.dataType)
+				assemberEngine.writePush(symbol.type0, symbol.index)
+		if(type == 2):
+			# like a()
+			paramLen += 1
+			assemberEngine.writePush("pointer", 0)
+			pass
+
+		assemberEngine.writeCall(fnName, paramLen)
 		return res[0], res[1], thisSymbol
 	
 	@delay_token_application
@@ -824,6 +899,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeSymbol(n_indent, ";")
 		)(readIndex,thisSymbol)
 
+  		# do 没有返回值
 		assemberEngine.writePop("temp", 0)
 		return res[0], res[1], thisSymbol
 	
@@ -911,6 +987,7 @@ def parseFile(file):
 
 	res = CompilationEngine(tokens, symbolTree, asserberEngine)
 	xmlout( res, outputfile + "3.xml")
+	asserberEngine.done()
 	
 
 	return
