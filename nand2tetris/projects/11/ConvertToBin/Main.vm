@@ -1,18 +1,109 @@
-function Main.fillMemory 0 
-label while.satrt17
-push constant 0 
-gt
+function Main.main 1
+push constant 8001
+push constant 16
+push constant 1
 neg
-goto-if while.end17 
-call Memory.poke 2 
-push constant 1 
-sub
-pop temp 0 
-push argument 1 
-push constant 1 
+call Main.fillMemory 3
+pop temp 0
+push constant 8000
+call Memory.peek 1
+pop local 0
+push local 0
+call Main.convert 1
+pop temp 0
+push constant 0
+return
+function Main.convert 3
+push constant 0
+not
+pop local 2
+label while_satrt70
+push local 2
+not
+if-goto while_end70
+push local 1
+push constant 1
 add
-pop temp 0 
-push argument 0 
-goto while.satrt17 
-label while.end17
-return 
+pop local 1
+push local 0
+call Main.nextMask 1
+pop local 0
+push local 1
+push constant 16
+gt
+not
+not
+if-goto if_92_else
+push argument 0
+push local 0
+and
+push constant 0
+eq
+not
+not
+if-goto if_102_else
+push constant 8000
+push local 1
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+goto if_102_end
+label if_102_else
+push constant 8000
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+goto if_102_end
+label if_102_end
+goto if_92_end
+label if_92_else
+push constant 0
+pop local 2
+goto if_92_end
+label if_92_end
+goto while_satrt70
+label while_end70
+push constant 0
+return
+function Main.nextMask 0
+push argument 0
+push constant 0
+eq
+not
+if-goto if_165_else
+push constant 1
+return
+goto if_165_end
+label if_165_else
+push argument 0
+push constant 2
+call Math.multiply 2
+return
+goto if_165_end
+label if_165_end
+function Main.fillMemory 0
+label while_satrt199
+push argument 1
+push constant 0
+gt
+not
+if-goto while_end199
+push argument 0
+push argument 2
+call Memory.poke 2
+pop temp 0
+push argument 1
+push constant 1
+sub
+pop argument 1
+push argument 0
+push constant 1
+add
+pop argument 0
+goto while_satrt199
+label while_end199
+push constant 0
+return

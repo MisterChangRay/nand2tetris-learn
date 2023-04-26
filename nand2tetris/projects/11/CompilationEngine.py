@@ -16,16 +16,16 @@ class AssemberEngine:
 		self.outline("push", args)
 		pass
 	def writeReturn(self):
-		self.vmfile.write("return \n")
+		self.vmfile.write("return\n")
 		pass
 	def writeLabel(self, label):
 		self.vmfile.write("label {0}\n".format(label))
 		pass
 	def writeGoto(self, type, label):
 		if(type == 1):
-			self.vmfile.write("goto-if {0} \n".format(label))
+			self.vmfile.write("if-goto {0}\n".format(label))
 		else :
-			self.vmfile.write("goto {0} \n".format(label))
+			self.vmfile.write("goto {0}\n".format(label))
 		pass
 	def writeArithmetic(self,val):
 		dic = {
@@ -37,10 +37,10 @@ class AssemberEngine:
       		"<" :"lt",
 			">" :"gt",
    			"=" :"eq",
-			"~" :"not",
 			"&" :"and",
 			"|" :"or",
-   			"!" :"neg",
+			"--" : "neg",
+			"~" : "not"
 		}
 		
 		self.vmfile.write(dic.get(val) +  "\n")
@@ -53,14 +53,14 @@ class AssemberEngine:
 	def writeFunction(self, name, localNum, type):
 		# type : constructor|function|method
   		# localNum : 局部变量表个数
-		self.vmfile.write("function {0} {1} \n".format(name, localNum))
+		self.vmfile.write("function {0} {1}\n".format(name, localNum))
 		pass
 	def flsh(self):
 		pass
 	def outline(self, keywrod, args):
-		tmp = keywrod + " "
+		tmp = keywrod 
 		for i in range(len(args)):
-			tmp += str(args[i]) + " "
+			tmp += " " + str(args[i]) 
 
 		self.vmfile.write(tmp + "\n")
 		return
@@ -69,21 +69,23 @@ class AssemberEngine:
 		pass
 
 class SymbolTree:
-	# type : arguments, var, static, field, constructor|function|method
+	# type : argument, var, static, field, constructor|function|method
 	def add(self, name, dataType, type):
 		# constructor|function|method
 		kname = self.key(name, type)		
 		if(None != self.tables.get(kname)):
 			raise ValueError(f"compilation type error：identifier has already defined! -> " + name)
 		
-		self.tables[kname] = Symbol(name, dataType, type, self.countType( self.distict(type)))
+		self.tables[kname] = Symbol(name, dataType, type, self.countType( type))
 	def distict(self, type):
+		# 主要是生成key时避免重名
+		# argument 和 var 不能重名
 		type = type.replace("constructor", "fn") \
 				.replace("function", "fn") \
 				.replace("method", "fn") \
 				.replace("field", "field") \
 				.replace("static", "field") \
-				.replace("arguments", "var") 
+				.replace("argument", "var") 
 		return type
 	def getSymbol(self, name):
 		this = self
@@ -106,7 +108,7 @@ class SymbolTree:
 		count = 0
 		for k in self.tables:
 			tmp = self.tables[k]
-			if(self.distict(tmp.type) == type):
+			if(tmp.type == type):
 				count += 1
 		return count
 	
@@ -128,6 +130,11 @@ class Symbol:
 	def __init__(self, name, dataType, type, index):
 		self.name = name
 		self.dataType = dataType
+		self.type0 = type
+		if(type == "var"):
+			self.type0 = "local"
+		elif(type == "field"):
+			self.type0 = "this"
 		self.type = type
 		self.index = index
 		pass
@@ -205,6 +212,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		if(None !=  res[0]):
 			if(val == "class"):
 				clzName = tokens[readIndex + 1].val
+
 	
 		return res[0], res[1], symbolTree
 		
@@ -218,10 +226,10 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			if(symbolType == "class"):
 				clzName = tokens[readIndex].val
 			#registe to symbolTalbe
-			if(symbolType == "arguments"):
+			if(symbolType == "argument"):
 				type = tokens[readIndex - 1].val
 				name = tokens[readIndex].val
-				symbolTree.add(name, type, "arguments")
+				symbolTree.add(name, type, "argument")
 
 				nextIndex = readIndex + 1
 				while True:
@@ -229,7 +237,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					if(next.type == "symbol" and next.val == ","):
 						type = tokens[nextIndex + 1].val
 						name = tokens[nextIndex + 2].val
-						symbolTree.add(name, type, "arguments")
+						symbolTree.add(name, type, "argument")
 						nextIndex += 3
 					else :
 						break
@@ -346,7 +354,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		while True:
 			for task in tasks:
 				res,readIndex, symbolTree  = task(readIndex, symbolTree)
-				
+				if(res == "WRITE_CODE"):
+					continue
 				if(res == None):
 					ended = True
 					break
@@ -397,7 +406,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	def takeParameterList(readIndex, thisSymbol:SymbolTree, n_indent):
 		res = applyTakers(
 			takeType(n_indent, False, False),
-			takeIdentifier(n_indent, "arguments"),
+			takeIdentifier(n_indent, "argument"),
 			takeUtilNone(
 				takeSymbol(n_indent, ",", err=False),
 				takeType(n_indent),
@@ -464,9 +473,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				res += tmp
 			elif(tmp == tokenFormat("keyword", "if")):
 				startIndex = readIndex
-				writeStatementIf(n_indent, 1, startIndex)(readIndex, thisSymbol)
 				tmp, readIndex, thisSymbol1 =  takeStatementIf( n_indent)(readIndex, thisSymbol)
-				writeStatementIf(n_indent, 3, startIndex)(readIndex, thisSymbol)
+				writeStatementIf(n_indent, 4, startIndex)(readIndex, thisSymbol)
 				res += tmp
 			elif(tmp == tokenFormat("keyword", "while")):
 				startIndex = readIndex
@@ -485,6 +493,30 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 
 
 	@delay_token_application
+	def writeLetCode(readIndex, thisSymbol:SymbolTree, n_indent, type, letReadIndex):
+		# write label of function
+		tmp = tokens[letReadIndex + 2]
+		varName = tokens[letReadIndex + 1].val
+  
+		if( 1== type) :
+			# 解析数组表达式
+			if(tmp.type == "symbol" and tmp.val == "["):
+				res = thisSymbol.getSymbol(varName)
+				assemberEngine.writePush(res.type0, res.index)
+				assemberEngine.writeArithmetic("+")
+				assemberEngine.writePop("pointer", 1)
+		if(2 == type):
+			if(tmp.type != "symbol" and tmp.val != "["):
+				# 数组赋值处理
+				assemberEngine.writePop("that", 0)
+			else:
+				# 普通赋值处理
+				res = thisSymbol.getSymbol(varName)
+				assemberEngine.writePop(res.type0, res.index)
+			
+		return "WRITE_CODE", readIndex, thisSymbol
+
+	@delay_token_application
 	@tag_indent("letStatement")
 	def takeStatementLet(readIndex,  thisSymbol:SymbolTree, n_indent):
 		res = applyTakers(
@@ -495,36 +527,31 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					takeExpression(n_indent),
 					takeSymbol(n_indent, "]")
 		   		),
+				writeLetCode(n_indent, 1, readIndex),
 				takeSymbol(n_indent, "="),
 				takeExpression(n_indent),
+				writeLetCode(n_indent, 2, readIndex),	
 				takeSymbol(n_indent, ";"),
 
 				breakNone=False
 			 )(readIndex,thisSymbol )
 
-		if(res != None and len(res) > 0):
-
-			# vm code 
-			name = res[0][1].val
-			assemberEngine.writePop("temp", 0)
-			if(res[0][2].type == "symbol" and res[0][2].val == "["):
-				assemberEngine.writePop("temp", 1)
-			symbol = thisSymbol.getSymbol(name)
-			if(symbol.type == "var"):
-				# 局部变量表
-				assemberEngine.writePush("local", symbol.index)
-			if(symbol.type == "field"):
-				# 类成员属性
-				pass
-			if(symbol.type == "static"):
-				# 全局成员属性
-				assemberEngine.writePush("static", symbol.index)
-				pass
-			if(symbol.type == "arguments"):
-				# 参数变量表
-				assemberEngine.writePush("argument", symbol.index)
-		return res[0], res[1], thisSymbol
 	
+		return res[0], res[1], thisSymbol
+
+	opToken = None
+	@delay_token_application
+	def writeOpCode(readIndex, thisSymbol:SymbolTree , n_indent, type):
+		nonlocal opToken
+		
+		if(type == 1):
+			opToken = tokens[readIndex - 1]
+		if(type == 2):
+			assemberEngine.writeArithmetic(opToken.val)	
+			
+		return "WRITE_CODE", readIndex, thisSymbol
+		
+  
 	@delay_token_application
 	@tag_indent("expression")
 	def takeExpression(readIndex, thisSymbol:SymbolTree, n_indent):
@@ -532,10 +559,11 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeTerm(n_indent),
 			takeUtilNone(
 				takeOp(n_indent, err = False),
-				takeTerm(n_indent, addOp=True)
+				writeOpCode(n_indent, 1),
+				takeTerm(n_indent),
+				writeOpCode(n_indent, 2)
 			)
-		)(readIndex,symbolTree)
-
+		)(readIndex,thisSymbol)
 
 		return res[0], res[1], thisSymbol
 		pass
@@ -549,7 +577,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		if(type == 1):
 			# if start
 			# 取反, 大于0则跳到else
-			assemberEngine.writeArithmetic("!")
+			assemberEngine.writeArithmetic("~")
 			# if > 0 
 			assemberEngine.writeGoto(1, tagelse)
 			pass
@@ -557,10 +585,10 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			assemberEngine.writeGoto(2, tagend)
 			assemberEngine.writeLabel(tagelse)
 			pass
-		if(type == 3):
+		if(type == 4):
 			assemberEngine.writeLabel(tagend)
 			pass
-		if(type == 4):
+		if(type == 3):
 			assemberEngine.writeGoto(2, tagend)
 			pass
 
@@ -573,6 +601,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeKeyword(n_indent, "if", err=True),
 			takeSymbol(n_indent, "("),
 			takeExpression(n_indent),
+			writeStatementIf(n_indent, 1, readIndex),
+   
 			takeSymbol(n_indent, ")"),
 			takeSymbol(n_indent, "{"),
 			takeStatements(n_indent),
@@ -588,20 +618,14 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			),
 		)(readIndex,thisSymbol)
 		
-		writeStatementIf(n_indent, 4, readIndex)(readIndex,thisSymbol)
+		writeStatementIf(n_indent, 3, readIndex)(readIndex,thisSymbol)
 		return res[0], res[1], thisSymbol
 
-	def writeAddOp(readIndex, addOp):
-		if(False == addOp):
-			return
-		token = tokens[readIndex -1 ]
-		assemberEngine.writeArithmetic(token.val)
-	
      
 
 	@delay_token_application
 	@tag_indent("term")
-	def takeTerm(readIndex, thisSymbol:SymbolTree, n_indent, addOp=False):
+	def takeTerm(readIndex, thisSymbol:SymbolTree, n_indent):
 		token = tokens[readIndex]
 		tmp = token.tag
 		if(tmp.find("<integerConstant>") != -1 or tmp.find("<stringConstant>")  != -1 or tmp.find("<keyword>" )  != -1):
@@ -614,8 +638,12 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					c = token.val[i]
 					assemberEngine.writePush("constant", ord(c))
 					assemberEngine.writeCall("String.appendChar", 2)
+			if(token.val == "true" or token.val == "false"):
+				assemberEngine.writePush("constant", 0)
+				if(token.val == "true"):
+					assemberEngine.writeArithmetic("~")
+				pass
 			
-			writeAddOp(readIndex, addOp)
 			return [token], readIndex+1, thisSymbol
 		elif(tmp.find("<identifier>") != -1):
 			token1 = tokens[readIndex + 1]
@@ -627,32 +655,44 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					takeSymbol(n_indent, "["),
 					takeExpression(n_indent),
 					takeSymbol(n_indent, "]")
-				)(readIndex,symbolTree)
+				)(readIndex,thisSymbol)
     
-				writeAddOp(readIndex, addOp)
+				varname = tokens[readIndex].val
+				symbol = thisSymbol.getSymbol(varname)
+				assemberEngine.writePush(symbol.type0, symbol.index)
+				assemberEngine.writeArithmetic("+")
+				assemberEngine.writePop("pointer", 1)
+				assemberEngine.writePush("that", 0)
+
 				return res[0], res[1], thisSymbol
 				pass
 			elif(tmp1.find("(") != -1):
 				# method a()
 				res = takeSubroutineCall( n_indent)(readIndex, thisSymbol)
-				writeAddOp(readIndex, addOp)
 				return res[0], res[1], thisSymbol
 			elif(tmp1.find(".") != -1):
 				# method a.b()
 				res= takeSubroutineCall( n_indent)(readIndex, thisSymbol)
-				writeAddOp(readIndex, addOp)
 				return res[0], res[1], thisSymbol
 			else:
 				# var name
+				# 解析符号表,是一个变量
+				varname = token.val
+				symbol = thisSymbol.getSymbol(varname)
+				assemberEngine.writePush(symbol.type0, symbol.index)
+    
 				token.tag = doIndent(n_indent, tmp)
-				writeAddOp(readIndex, addOp)
 				return [token], readIndex + 1, thisSymbol
 		elif(tmp.find("-") != -1 or tmp.find("~") != -1):
 			res = applyTakers(
 				takeUnaryOp(n_indent, False),
-				takeTerm(n_indent, thisSymbol)
-			)(readIndex,symbolTree)
-			writeAddOp(readIndex, addOp)
+				takeTerm(n_indent)
+			)(readIndex,thisSymbol)
+
+			if(token.type == "symbol" and token.val == "-"):
+				assemberEngine.writeArithmetic("--")
+			if(token.type == "symbol" and token.val == "~"):
+				assemberEngine.writeArithmetic("~")
 			return res[0], res[1], thisSymbol
 			pass
 		elif(tmp.find("(") != -1):
@@ -660,8 +700,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				takeSymbol( n_indent, "("),
 				takeExpression(n_indent),
 				takeSymbol( n_indent, ")"),
-			)(readIndex,symbolTree)
-			writeAddOp(readIndex, addOp)
+			)(readIndex,thisSymbol)
 			return res[0], res[1], thisSymbol
 			pass
 		else:
@@ -687,7 +726,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				takeSymbol(n_indent, "("),
 				takeExpressionList(n_indent, fnName),
 				takeSymbol(n_indent, ")"),
-			)(readIndex,symbolTree)
+			)(readIndex,thisSymbol)
 			
 		
 		else:
@@ -698,7 +737,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				takeSymbol(n_indent, "("),
 				takeExpressionList(n_indent, fnName),
 				takeSymbol(n_indent, ")"),
-			)(readIndex,symbolTree)
+			)(readIndex,thisSymbol)
 
 			# write call
 			# 处理this
@@ -718,7 +757,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				takeSymbol(n_indent, ",", False),
 				takeExpression(n_indent)
 			)
-		)(readIndex,symbolTree)
+		)(readIndex,thisSymbol)
   
 		# 解析调用参数个数
 		paramLen = 0
@@ -735,17 +774,18 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	@delay_token_application
 	def takeOp(readIndex, thisSymbol:SymbolTree, n_indent, err=True):
 		res = takeSymbol(n_indent, "+|-|*|/|&|OR|<|>|=", err=err)(readIndex, thisSymbol)
+	
 		return res[0], res[1], thisSymbol
 
 	@delay_token_application
 	def writeWhileCode(readIndex, thisSymbol:SymbolTree, n_indent, type, index):
-		starttag = "while.satrt{0}".format(index)
-		endtag = "while.end{0}".format(index)
+		starttag = "while_satrt{0}".format(index)
+		endtag = "while_end{0}".format(index)
 
 		if(1 == type):
 			assemberEngine.writeLabel(starttag)
 		if(4 == type):
-			assemberEngine.writeArithmetic("!")
+			assemberEngine.writeArithmetic("~")
 			# if > 0 
 			assemberEngine.writeGoto(1, endtag)
 
@@ -784,7 +824,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeSymbol(n_indent, ";")
 		)(readIndex,thisSymbol)
 
-  
+		assemberEngine.writePop("temp", 0)
 		return res[0], res[1], thisSymbol
 	
 	@delay_token_application
@@ -798,7 +838,9 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			takeSymbol(n_indent, ";"),
 			breakNone=False
 		)(readIndex,thisSymbol)
-  
+		if(len(res[0]) == 2):
+			assemberEngine.writePush("constant", 0)
+   
 		assemberEngine.writeReturn()
 		return res[0], res[1], thisSymbol
 
