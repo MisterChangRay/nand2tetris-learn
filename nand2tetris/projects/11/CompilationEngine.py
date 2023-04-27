@@ -692,8 +692,12 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			if(tmp.find("<integerConstant>") != -1):
 				assemberEngine.writePush("constant", token.val)
 			if(tmp.find("<stringConstant>") != -1):
+				assemberEngine.writePush("constant", len(token.val) )
+				assemberEngine.writeCall("String.new", 1)
+				assemberEngine.writePop("temp", 0)
 				for i in range(len(token.val)):
 					c = token.val[i]
+					assemberEngine.writePush("temp", 0)
 					assemberEngine.writePush("constant", ord(c))
 					assemberEngine.writeCall("String.appendChar", 2)
 			if(token.val == "true" or token.val == "false"):
