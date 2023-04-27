@@ -551,10 +551,14 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				res = thisSymbol.getSymbol(varName)
 				assemberEngine.writePush(res.type0, res.index)
 				assemberEngine.writeArithmetic("+")
-				assemberEngine.writePop("pointer", 1)
+				
 		elif(2 == type):
 			if(tmp.type == "symbol" and tmp.val == "["):
 				# 数组赋值处理
+				assemberEngine.writePop("temp", 0)
+				assemberEngine.writePop("pointer", 1)
+    
+				assemberEngine.writePush("temp", 0)
 				assemberEngine.writePop("that", 0)
 			else:
 				# 普通赋值处理
@@ -575,6 +579,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					takeSymbol(n_indent, "]")
 		   		),
 				writeLetCode(n_indent, 1, readIndex),
+    
 				takeSymbol(n_indent, "="),
 				takeExpression(n_indent),
 				writeLetCode(n_indent, 2, readIndex),	
@@ -710,7 +715,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			if(token.val == "this"):
 				assemberEngine.writePush("pointer", 0)
 			if(token.val == "null"):
-				assemberEngine.writePush("constant", -1)
+				assemberEngine.writePush("constant", 0)
     
 			return [token], readIndex+1, thisSymbol
 		elif(tmp.find("<identifier>") != -1):
@@ -782,8 +787,10 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 	@delay_token_application
 	def writeThis(readIndex, thisSymbol:SymbolTree , n_indent, fnName, varname, type):
 		if(type == 2):
+			# a()
 			assemberEngine.writePush("pointer", 0)
 		if(type == 1):
+			# a.b()
 			if(True == thisSymbol.hasSymbol(varname)):
 				symbol = thisSymbol.getSymbol(varname)
 				assemberEngine.writePush(symbol.type0, symbol.index)

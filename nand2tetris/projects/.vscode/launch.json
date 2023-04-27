@@ -9,7 +9,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["D:\\workspace\\book\\nand2tetris-learn\\nand2tetris\\projects\\11\\Pong"]
+            "args": ["D:\\workspace\\book\\nand2tetris-learn\\nand2tetris\\projects\\11\\ComplexArrays"]
         }
     ]
 }
