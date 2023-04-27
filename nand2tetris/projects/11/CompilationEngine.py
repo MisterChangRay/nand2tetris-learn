@@ -550,8 +550,8 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				assemberEngine.writePush(res.type0, res.index)
 				assemberEngine.writeArithmetic("+")
 				assemberEngine.writePop("pointer", 1)
-		if(2 == type):
-			if(tmp.type != "symbol" and tmp.val != "["):
+		elif(2 == type):
+			if(tmp.type == "symbol" and tmp.val == "["):
 				# 数组赋值处理
 				assemberEngine.writePop("that", 0)
 			else:
