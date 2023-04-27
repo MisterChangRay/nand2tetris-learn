@@ -73,6 +73,7 @@ class AssemberEngine:
 			self.vmfile.write("function {0} {1}\n".format(fnName, fnLocalVarCount))
 			self.writePush("argument", 0)
 			self.writePop("pointer", 0)
+			
 			pass
 		
 		
@@ -92,13 +93,13 @@ class AssemberEngine:
 
 class SymbolTree:
 	# type : argument, var, static, field, constructor|function|method
-	def add(self, name, dataType, type):
+	def add(self, name, dataType, type, inc = 0):
 		# constructor|function|method
 		kname = self.key(name, type)		
 		if(None != self.tables.get(kname)):
 			raise ValueError(f"compilation type error：identifier has already defined! -> " + name)
 		
-		self.tables[kname] = Symbol(name, dataType, type, self.countType( type))
+		self.tables[kname] = Symbol(name, dataType, type, self.countType(type) + inc)
 	def distict(self, type):
 		# 主要是生成key时避免重名
 		# argument 和 var 不能重名
@@ -264,9 +265,10 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				clzName = tokens[readIndex].val
 			#registe to symbolTalbe
 			if(symbolType == "argument"):
+				fnType =  tokens[readIndex - 5].val
 				type = tokens[readIndex - 1].val
 				name = tokens[readIndex].val
-				symbolTree.add(name, type, "argument")
+				symbolTree.add(name, type, "argument", 1 if fnType == "method" else 0)
 
 				nextIndex = readIndex + 1
 				while True:
@@ -274,7 +276,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 					if(next.type == "symbol" and next.val == ","):
 						type = tokens[nextIndex + 1].val
 						name = tokens[nextIndex + 2].val
-						symbolTree.add(name, type, "argument")
+						symbolTree.add(name, type, "argument", 1 if fnType == "method" else 0)
 						nextIndex += 3
 					else :
 						break
@@ -778,6 +780,18 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 		return res[0], res[1], thisSymbol
 	
 	@delay_token_application
+	def writeThis(readIndex, thisSymbol:SymbolTree , n_indent, fnName, varname, type):
+		if(type == 2):
+			assemberEngine.writePush("pointer", 0)
+		if(type == 1):
+			if(True == thisSymbol.hasSymbol(varname)):
+				symbol = thisSymbol.getSymbol(varname)
+				assemberEngine.writePush(symbol.type0, symbol.index)
+	
+		return "WRITE_CODE", readIndex, thisSymbol
+
+
+	@delay_token_application
 	def takeSubroutineCall(readIndex, thisSymbol:SymbolTree, n_indent):
 		token = tokens[readIndex + 1]
 		tmp = token.tag
@@ -791,6 +805,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 				takeSymbol(n_indent, "."),
 				takeIdentifier(n_indent),
 				takeSymbol(n_indent, "("),
+				writeThis(n_indent, fnName, aname, 1),
 				takeExpressionList(n_indent, fnName, aname, 1),
 				takeSymbol(n_indent, ")"),
 			)(readIndex,thisSymbol)
@@ -802,6 +817,7 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			res = applyTakers(
 				takeIdentifier(n_indent),
 				takeSymbol(n_indent, "("),
+    			writeThis(n_indent, fnName, fnName, 2),
 				takeExpressionList(n_indent, fnName, fnName, 2),
 				takeSymbol(n_indent, ")"),
 			)(readIndex,thisSymbol)
@@ -837,14 +853,12 @@ def CompilationEngine(tokens, symbolTree:SymbolTree, assemberEngine:AssemberEngi
 			# like a.b()
 			# a maby is var
 			if(True == thisSymbol.hasSymbol(varname)):
-				paramLen += 1
 				symbol = thisSymbol.getSymbol(varname)
 				fnName = fnName.replace(varname, symbol.dataType)
-				assemberEngine.writePush(symbol.type0, symbol.index)
+				paramLen += 1
 		if(type == 2):
 			# like a()
 			paramLen += 1
-			assemberEngine.writePush("pointer", 0)
 			pass
 
 		assemberEngine.writeCall(fnName, paramLen)
