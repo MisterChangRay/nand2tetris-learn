@@ -5,7 +5,7 @@
 
 // (Same as projects/09/Average/Main.jack)
 
-// Inputs some numbers and computes their average
+// Inputs some numbers and computes their average foryalo
 class Main {
    function void main() {
      var Array a; 
