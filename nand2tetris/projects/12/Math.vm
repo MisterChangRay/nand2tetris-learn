@@ -1,0 +1,274 @@
+function Math.main 0
+push constant 15
+call String.new 1
+pop temp 0
+push temp 0
+push constant 84
+call String.appendChar 2
+push temp 0
+push constant 104
+call String.appendChar 2
+push temp 0
+push constant 101
+call String.appendChar 2
+push temp 0
+push constant 32
+call String.appendChar 2
+push temp 0
+push constant 97
+call String.appendChar 2
+push temp 0
+push constant 118
+call String.appendChar 2
+push temp 0
+push constant 101
+call String.appendChar 2
+push temp 0
+push constant 114
+call String.appendChar 2
+push temp 0
+push constant 97
+call String.appendChar 2
+push temp 0
+push constant 103
+call String.appendChar 2
+push temp 0
+push constant 101
+call String.appendChar 2
+push temp 0
+push constant 32
+call String.appendChar 2
+push temp 0
+push constant 105
+call String.appendChar 2
+push temp 0
+push constant 115
+call String.appendChar 2
+push temp 0
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+function Math.init 0
+function Math.abs 0
+function Math.shiftLeft 0
+label while_satrt45
+push argument 1
+push constant 0
+gt
+not
+if-goto while_end45
+push argument 0
+push argument 0
+add
+pop argument 0
+goto while_satrt45
+label while_end45
+push argument 0
+return
+function Math.bitof 1
+push constant 0
+pop local 0
+push argument 1
+push constant 0
+gt
+push argument 1
+or
+push constant 0
+eq
+not
+if-goto if_84_else
+push constant 1
+pop local 0
+goto if_84_end
+label if_84_else
+goto if_84_end
+label if_84_end
+label while_satrt101
+push argument 1
+push constant 0
+gt
+not
+if-goto while_end101
+push argument 1
+push constant 1
+sub
+pop argument 1
+push local 0
+push local 0
+add
+pop local 0
+goto while_satrt101
+label while_end101
+push argument 0
+push local 0
+and
+pop argument 1
+push argument 1
+push local 0
+eq
+not
+if-goto if_130_else
+push constant 1
+return
+goto if_130_end
+label if_130_else
+push constant 0
+return
+goto if_130_end
+label if_130_end
+function Math.multiply 7
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+push constant 0
+pop local 6
+label while_satrt190
+push local 0
+push constant 16
+lt
+not
+if-goto while_end190
+push pointer 0
+push argument 0
+push local 0
+call Math.bitof 3
+pop local 2
+push constant 0
+pop local 4
+label while_satrt212
+push local 1
+push constant 16
+lt
+not
+if-goto while_end212
+push constant 0
+pop local 5
+push pointer 0
+push argument 1
+push local 1
+call Math.bitof 3
+pop local 3
+push pointer 0
+push constant 1
+push local 1
+call Math.shiftLeft 3
+pop local 5
+push local 2
+push local 3
+add
+pop local 2
+push local 2
+push constant 1
+gt
+not
+if-goto if_251_else
+push local 4
+push local 5
+add
+pop local 4
+goto if_251_end
+label if_251_else
+goto if_251_end
+label if_251_end
+push local 1
+push constant 1
+add
+pop local 1
+goto while_satrt212
+label while_end212
+push pointer 0
+push local 4
+push local 0
+call Math.shiftLeft 3
+pop local 4
+push local 6
+push local 4
+add
+pop local 6
+push local 0
+push constant 1
+add
+pop local 0
+goto while_satrt190
+label while_end190
+push local 6
+return
+function Math.divide 2
+push argument 1
+push argument 0
+gt
+not
+if-goto if_322_else
+push constant 0
+return
+goto if_322_end
+label if_322_else
+goto if_322_end
+label if_322_end
+push pointer 0
+push argument 1
+push constant 2
+call Math.multiply 3
+pop local 1
+push pointer 0
+push argument 0
+push local 1
+call Math.divide 3
+pop local 0
+push argument 0
+push pointer 0
+push local 1
+push local 0
+call Math.multiply 3
+sub
+push argument 1
+gt
+not
+if-goto if_353_else
+push pointer 0
+push local 0
+push constant 2
+call Math.multiply 3
+return
+goto if_353_end
+label if_353_else
+push pointer 0
+push local 0
+push constant 2
+call Math.multiply 3
+push constant 1
+add
+return
+goto if_353_end
+label if_353_end
+function Math.sqrt 0
+function Math.max 0
+push argument 0
+push argument 1
+gt
+not
+if-goto if_410_else
+push argument 0
+return
+goto if_410_end
+label if_410_else
+push argument 1
+return
+goto if_410_end
+label if_410_end
+function Math.min 0
+push argument 0
+push argument 1
+gt
+not
+if-goto if_439_else
+push argument 1
+return
+goto if_439_end
+label if_439_else
+push argument 0
+return
+goto if_439_end
+label if_439_end

@@ -1,8 +1,229 @@
-function Main.main 0 
-push constant 1 
-push constant 2 
-push constant 3 
-call Math.multiply 2
+function Main.main 1
+push constant 120
+push constant 3
+call Main.divide 2
+pop local 0
+push local 0
+call Output.printInt 1
+pop temp 0
+push constant 0
+return
+function Main.divide 2
+push argument 1
+push argument 0
+gt
+not
+if-goto if_55_else
+push constant 0
+return
+goto if_55_end
+label if_55_else
+goto if_55_end
+label if_55_end
+push argument 1
+push constant 2
+call Main.multiply 2
+pop local 1
+push argument 0
+push local 1
+call Main.divide 2
+pop local 0
+push argument 0
+push local 1
+push local 0
+call Main.multiply 2
+sub
+push argument 1
+gt
+not
+if-goto if_90_else
+push local 0
+push constant 2
+call Main.multiply 2
+return
+goto if_90_end
+label if_90_else
+push local 0
+push constant 2
+call Main.multiply 2
+push constant 1
 add
-call Output.printInt 1 
-return 
+return
+goto if_90_end
+label if_90_end
+function Main.multiply2 3
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+push constant 0
+pop local 2
+label while_satrt167
+push local 0
+push constant 16
+lt
+not
+if-goto while_end167
+push local 0
+call Output.printInt 1
+pop temp 0
+call Output.println 0
+pop temp 0
+push constant 0
+pop local 1
+label while_satrt194
+push local 1
+push constant 16
+lt
+not
+if-goto while_end194
+push local 1
+call Output.printInt 1
+pop temp 0
+push local 2
+push constant 1
+add
+pop local 2
+push local 1
+push constant 1
+add
+pop local 1
+goto while_satrt194
+label while_end194
+push local 0
+push constant 1
+add
+pop local 0
+goto while_satrt167
+label while_end167
+push local 2
+return
+function Main.multiply 7
+push constant 0
+pop local 0
+push constant 0
+pop local 1
+push constant 0
+pop local 6
+label while_satrt278
+push local 0
+push constant 16
+lt
+not
+if-goto while_end278
+push argument 0
+push local 0
+call Main.bitof 2
+pop local 2
+push constant 0
+pop local 4
+push constant 0
+pop local 1
+label while_satrt307
+push local 1
+push constant 16
+lt
+not
+if-goto while_end307
+push argument 1
+push local 1
+call Main.bitof 2
+pop local 3
+push local 2
+push local 3
+add
+pop local 5
+push local 5
+push constant 1
+gt
+not
+if-goto if_333_else
+push constant 1
+push local 1
+call Main.shiftLeft 2
+pop local 5
+push local 4
+push local 5
+add
+pop local 4
+goto if_333_end
+label if_333_else
+goto if_333_end
+label if_333_end
+push local 1
+push constant 1
+add
+pop local 1
+goto while_satrt307
+label while_end307
+push local 4
+push local 0
+call Main.shiftLeft 2
+pop local 4
+push local 6
+push local 4
+add
+pop local 6
+push local 0
+push constant 1
+add
+pop local 0
+goto while_satrt278
+label while_end278
+push local 6
+return
+function Main.bitof 1
+push constant 1
+pop local 0
+label while_satrt419
+push argument 1
+push constant 0
+gt
+not
+if-goto while_end419
+push argument 1
+push constant 1
+sub
+pop argument 1
+push local 0
+push local 0
+add
+pop local 0
+goto while_satrt419
+label while_end419
+push argument 0
+push local 0
+and
+pop argument 1
+push argument 1
+push local 0
+eq
+not
+if-goto if_448_else
+push constant 1
+return
+goto if_448_end
+label if_448_else
+push constant 0
+return
+goto if_448_end
+label if_448_end
+function Main.shiftLeft 0
+label while_satrt477
+push argument 1
+push constant 0
+gt
+not
+if-goto while_end477
+push argument 1
+push constant 1
+sub
+pop argument 1
+push argument 0
+push argument 0
+add
+pop argument 0
+goto while_satrt477
+label while_end477
+push argument 0
+return

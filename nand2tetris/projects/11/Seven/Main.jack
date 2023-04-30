@@ -10,8 +10,106 @@
 class Main {
 
    function void main() {
-      do Output.printInt(1 + (2 * 3));
+      var int i;
+      let i = Main.divide(120, 3);
+      do Output.printInt(i);
       return;
    }
 
+    function int divide(int x, int y) {
+        var int q;
+        var int tmp ;
+        if(y > x) {
+            return 0;
+        }
+        let tmp = Main.multiply(y, 2);
+        let q = Main.divide(x, tmp);
+        if( x - Main.multiply(tmp, q) > y) {
+            return Main.multiply(q, 2);
+        } else {
+            return Main.multiply(q, 2) + 1;
+        }
+    }
+
+
+      function int multiply2(int x, int y) {
+        var int xi, yi, res;
+        let xi = 0;
+        let yi = 0;
+        let res = 0;
+
+
+        while(xi < 16) {
+               do Output.printInt(xi);
+                  do Output.println();
+            let yi = 0 ;
+            while(yi < 16) {
+                  do Output.printInt(yi);
+
+               let res = res +1 ;
+                let yi = yi + 1;
+            }
+
+            let xi = xi + 1;
+        }
+        return res;          
+
+    }
+
+    function int multiply(int x, int y) {
+        var int xi, yi, xb, yb, tmp1, tmp2, res;
+        let xi = 0;
+        let yi = 0;
+        let res = 0;
+
+        while(xi < 16) {
+            let xb = Main.bitof(x, xi);
+
+            let tmp1 = 0;
+            let yi = 0;
+            while(yi < 16) {
+                let yb = Main.bitof(y, yi);
+                let tmp2 = xb + yb;
+
+                if(tmp2 > 1) {
+                     
+                     let tmp2 = Main.shiftLeft(1, yi);
+
+                     let tmp1 = tmp1 + tmp2;
+                }
+                let yi = yi + 1;
+            }
+
+            let tmp1 = Main.shiftLeft(tmp1, xi);
+            let res = res + tmp1;
+            let xi = xi + 1;
+        }
+        return res;          
+
+    }
+
+   function int bitof(int x, int index) {
+       var int i;
+       let i = 1;
+
+       while(index > 0) {
+            let index = index - 1;
+            let i = i + i;
+       }
+
+        let index = x & i;
+        if(index = i) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    function int shiftLeft(int x, int shift) {
+        while(shift > 0) {
+            let shift = shift - 1;
+            let x = x + x;
+        }
+        return x;
+    }
 }

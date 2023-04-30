@@ -8,6 +8,9 @@
  * Note: Jack compilers implement multiplication and division using OS method calls.
  */
 class Math {
+    function void main() {
+        do Output.printString("The average is "); 
+    }
 
     /** Initializes the library. */
     function void init() {
@@ -17,12 +20,66 @@ class Math {
     function int abs(int x) {
     }
 
+    function int shiftLeft(int x, int shift) {
+        while(shift > 0) {
+            let shift = shift - 1;
+            let x = x + x;
+        }
+        return x;
+    }
+
+    function int bitof(int x, int index) {
+       var int i;
+       let i = 1;
+
+       while(index > 0) {
+            let index = index - 1;
+            let i = i + i;
+       }
+
+        let index = x & i;
+        if(index = i) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     /** Returns the product of x and y. 
      *  When a Jack compiler detects the multiplication operator '*' in the 
      *  program's code, it handles it by invoking this method. In other words,
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
-    function int multiply(int x, int y) {
+   function int multiply(int x, int y) {
+        var int xi, yi, xb, yb, tmp1, tmp2, res;
+        let xi = 0;
+        let yi = 0;
+        let res = 0;
+
+        while(xi < 16) {
+            let xb = Math.bitof(x, xi);
+
+            let tmp1 = 0;
+            let yi = 0;
+            while(yi < 16) {
+                let yb = Math.bitof(y, yi);
+                let tmp2 = xb + yb;
+
+                if(tmp2 > 1) {
+                     
+                     let tmp2 = Math.shiftLeft(1, yi);
+
+                     let tmp1 = tmp1 + tmp2;
+                }
+                let yi = yi + 1;
+            }
+
+            let tmp1 = Math.shiftLeft(tmp1, xi);
+            let res = res + tmp1;
+            let xi = xi + 1;
+        }
+        return res;          
+
     }
 
     /** Returns the integer part of x/y.
@@ -31,6 +88,18 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
+        var int q;
+        var int tmp ;
+        if(y > x) {
+            return 0;
+        }
+        let tmp = multiply(y, 2);
+        let q = divide(x, tmp);
+        if( x - multiply(tmp, q) > y) {
+            return multiply(q, 2);
+        } else {
+            return multiply(q, 2) + 1;
+        }
     }
 
     /** Returns the integer part of the square root of x. */
@@ -39,9 +108,19 @@ class Math {
 
     /** Returns the greater number. */
     function int max(int a, int b) {
+        if(a>b) {
+            return a;
+        } else {
+            return b;
+        }
     }
 
     /** Returns the smaller number. */
     function int min(int a, int b) {
+        if(a>b) {
+            return b;
+        } else {
+            return a;
+        }
     }
 }
