@@ -1,5 +1,5 @@
 function Main.main 1
-push constant 120
+push constant 18
 push constant 3
 call Main.divide 2
 pop local 0
@@ -8,18 +8,18 @@ call Output.printInt 1
 pop temp 0
 push constant 0
 return
-function Main.divide 2
+function Main.divide 3
 push argument 1
 push argument 0
 gt
 not
-if-goto if_55_else
+if-goto if_57_else
 push constant 0
 return
-goto if_55_end
-label if_55_else
-goto if_55_end
-label if_55_end
+goto if_57_end
+label if_57_else
+goto if_57_end
+label if_57_end
 push argument 1
 push constant 2
 call Main.multiply 2
@@ -31,26 +31,28 @@ pop local 0
 push argument 0
 push local 1
 push local 0
-call Main.multiply 2
+call Math.multiply 2
 sub
+pop local 2
+push local 2
 push argument 1
-gt
+lt
 not
-if-goto if_90_else
+if-goto if_103_else
 push local 0
 push constant 2
 call Main.multiply 2
 return
-goto if_90_end
-label if_90_else
+goto if_103_end
+label if_103_else
 push local 0
 push constant 2
 call Main.multiply 2
 push constant 1
 add
 return
-goto if_90_end
-label if_90_end
+goto if_103_end
+label if_103_end
 function Main.multiply2 3
 push constant 0
 pop local 0
@@ -58,12 +60,12 @@ push constant 0
 pop local 1
 push constant 0
 pop local 2
-label while_satrt167
+label while_satrt171
 push local 0
 push constant 16
 lt
 not
-if-goto while_end167
+if-goto while_end171
 push local 0
 call Output.printInt 1
 pop temp 0
@@ -71,12 +73,12 @@ call Output.println 0
 pop temp 0
 push constant 0
 pop local 1
-label while_satrt194
+label while_satrt198
 push local 1
 push constant 16
 lt
 not
-if-goto while_end194
+if-goto while_end198
 push local 1
 call Output.printInt 1
 pop temp 0
@@ -88,14 +90,14 @@ push local 1
 push constant 1
 add
 pop local 1
-goto while_satrt194
-label while_end194
+goto while_satrt198
+label while_end198
 push local 0
 push constant 1
 add
 pop local 0
-goto while_satrt167
-label while_end167
+goto while_satrt171
+label while_end171
 push local 2
 return
 function Main.multiply 7
@@ -105,12 +107,12 @@ push constant 0
 pop local 1
 push constant 0
 pop local 6
-label while_satrt278
+label while_satrt282
 push local 0
 push constant 16
 lt
 not
-if-goto while_end278
+if-goto while_end282
 push argument 0
 push local 0
 call Main.bitof 2
@@ -119,12 +121,12 @@ push constant 0
 pop local 4
 push constant 0
 pop local 1
-label while_satrt307
+label while_satrt311
 push local 1
 push constant 16
 lt
 not
-if-goto while_end307
+if-goto while_end311
 push argument 1
 push local 1
 call Main.bitof 2
@@ -137,7 +139,7 @@ push local 5
 push constant 1
 gt
 not
-if-goto if_333_else
+if-goto if_337_else
 push constant 1
 push local 1
 call Main.shiftLeft 2
@@ -146,16 +148,16 @@ push local 4
 push local 5
 add
 pop local 4
-goto if_333_end
-label if_333_else
-goto if_333_end
-label if_333_end
+goto if_337_end
+label if_337_else
+goto if_337_end
+label if_337_end
 push local 1
 push constant 1
 add
 pop local 1
-goto while_satrt307
-label while_end307
+goto while_satrt311
+label while_end311
 push local 4
 push local 0
 call Main.shiftLeft 2
@@ -168,19 +170,19 @@ push local 0
 push constant 1
 add
 pop local 0
-goto while_satrt278
-label while_end278
+goto while_satrt282
+label while_end282
 push local 6
 return
 function Main.bitof 1
 push constant 1
 pop local 0
-label while_satrt419
+label while_satrt423
 push argument 1
 push constant 0
 gt
 not
-if-goto while_end419
+if-goto while_end423
 push argument 1
 push constant 1
 sub
@@ -189,8 +191,8 @@ push local 0
 push local 0
 add
 pop local 0
-goto while_satrt419
-label while_end419
+goto while_satrt423
+label while_end423
 push argument 0
 push local 0
 and
@@ -199,22 +201,22 @@ push argument 1
 push local 0
 eq
 not
-if-goto if_448_else
+if-goto if_452_else
 push constant 1
 return
-goto if_448_end
-label if_448_else
+goto if_452_end
+label if_452_else
 push constant 0
 return
-goto if_448_end
-label if_448_end
+goto if_452_end
+label if_452_end
 function Main.shiftLeft 0
-label while_satrt477
+label while_satrt481
 push argument 1
 push constant 0
 gt
 not
-if-goto while_end477
+if-goto while_end481
 push argument 1
 push constant 1
 sub
@@ -223,7 +225,7 @@ push argument 0
 push argument 0
 add
 pop argument 0
-goto while_satrt477
-label while_end477
+goto while_satrt481
+label while_end481
 push argument 0
 return
