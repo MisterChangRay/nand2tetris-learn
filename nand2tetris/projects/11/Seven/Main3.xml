@@ -18,7 +18,7 @@
               <symbol> . </symbol>
               <identifier> divide </identifier>
               <symbol> ( </symbol>
-                    <integerConstant> 120 </integerConstant>
+                    <integerConstant> 18 </integerConstant>
                 <symbol> , </symbol>
                     <integerConstant> 3 </integerConstant>
               <symbol> ) </symbol>
@@ -52,6 +52,8 @@
         <keyword> var </keyword>
         <keyword> int </keyword>
         <identifier> tmp </identifier>
+        <symbol> , </symbol>
+        <identifier> tmp2 </identifier>
         <symbol> ; </symbol>
           <keyword> if </keyword>
           <symbol> ( </symbol>
@@ -88,19 +90,21 @@
                     <identifier> tmp </identifier>
               <symbol> ) </symbol>
           <symbol> ; </symbol>
-          <keyword> if </keyword>
-          <symbol> ( </symbol>
+          <keyword> let </keyword>
+          <identifier> tmp2 </identifier>
+          <symbol> = </symbol>
               <identifier> x </identifier>
             <symbol> - </symbol>
-              <identifier> Main </identifier>
-              <symbol> . </symbol>
-              <identifier> multiply </identifier>
               <symbol> ( </symbol>
-                    <identifier> tmp </identifier>
-                <symbol> , </symbol>
-                    <identifier> q </identifier>
+                  <identifier> tmp </identifier>
+                <symbol> * </symbol>
+                  <identifier> q </identifier>
               <symbol> ) </symbol>
-            <symbol> &gt; </symbol>
+          <symbol> ; </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> tmp2 </identifier>
+            <symbol> &lt; </symbol>
               <identifier> y </identifier>
           <symbol> ) </symbol>
           <symbol> { </symbol>

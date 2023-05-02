@@ -87,20 +87,25 @@ class Math {
      *  program's code, it handles it by invoking this method. In other words,
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
+    
     function int divide(int x, int y) {
         var int q;
-        var int tmp ;
+        var int tmp , tmp2;
         if(y > x) {
             return 0;
         }
-        let tmp = multiply(y, 2);
-        let q = divide(x, tmp);
-        if( x - multiply(tmp, q) > y) {
-            return multiply(q, 2);
+        
+        let tmp = Math.multiply(y, 2);
+        let q = Math.divide(x, tmp);
+
+        let tmp2 =  x - (tmp * q);
+        if(tmp2  < y) {
+            return Math.multiply(q, 2);
         } else {
-            return multiply(q, 2) + 1;
+            return Math.multiply(q, 2) + 1;
         }
     }
+
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {

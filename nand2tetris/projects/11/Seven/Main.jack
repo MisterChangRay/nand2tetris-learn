@@ -11,20 +11,23 @@ class Main {
 
    function void main() {
       var int i;
-      let i = Main.divide(120, 3);
+      let i = Main.divide(18, 3);
       do Output.printInt(i);
       return;
    }
 
     function int divide(int x, int y) {
         var int q;
-        var int tmp ;
+        var int tmp , tmp2;
         if(y > x) {
             return 0;
         }
+        
         let tmp = Main.multiply(y, 2);
         let q = Main.divide(x, tmp);
-        if( x - Main.multiply(tmp, q) > y) {
+
+        let tmp2 =  x - (tmp * q);
+        if(tmp2  < y) {
             return Main.multiply(q, 2);
         } else {
             return Main.multiply(q, 2) + 1;
