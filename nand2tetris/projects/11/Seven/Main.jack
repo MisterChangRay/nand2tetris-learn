@@ -15,6 +15,7 @@ class Main {
       do Output.printInt(i);
       return;
    }
+   
 
     function int divide(int x, int y) {
         var int q;
