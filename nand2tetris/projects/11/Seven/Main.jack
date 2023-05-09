@@ -11,13 +11,32 @@ class Main {
 
    function void main() {
       var int i;
-      let i = Main.divide(18, 3);
+      let i = Main.divide((-18000) , 6);
       do Output.printInt(i);
       return;
    }
    
 
+    
     function int divide(int x, int y) {
+        var int flag, res;
+        let flag = 0;
+        if(x < 0) {
+            let x = -x;
+            let flag = 1;
+        }
+        if(y < 0) {
+            let y = -y;
+            let flag = 1;
+        }
+        let res = Main.doDiv(x, y);
+        if(flag = 0) {
+            return res;
+        }
+        return -res;
+    }
+    
+    function int doDiv(int x, int y) {
         var int q;
         var int tmp , tmp2;
         if(y > x) {

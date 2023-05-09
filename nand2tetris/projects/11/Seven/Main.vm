@@ -1,55 +1,155 @@
 function Main.main 1
+push constant 6
+push constant 18000
+neg
+call Main.divide 2
+pop local 0
+push local 0
+call Output.printInt 1
+pop temp 0
+push constant 0
+return
+function Main.divide 2
+push constant 0
+pop local 0
+push argument 0
+push constant 0
+lt
+not
+if-goto if_61_else
+push argument 0
+neg
+pop argument 0
+push constant 1
+pop local 0
+goto if_61_end
+label if_61_else
+goto if_61_end
+label if_61_end
+push argument 1
+push constant 0
+lt
+not
+if-goto if_80_else
+push argument 1
+neg
+pop argument 1
+push constant 1
+pop local 0
+goto if_80_end
+label if_80_else
+goto if_80_end
+label if_80_end
+push argument 0
+push argument 1
+call Main.doDiv 2
+pop local 1
+push local 0
+push constant 0
+eq
+not
+if-goto if_111_else
+push local 1
+return
+goto if_111_end
+label if_111_else
+goto if_111_end
+label if_111_end
+push local 1
+neg
+return
+function Main.doDiv 3
+push argument 1
+push argument 0
+gt
+not
+if-goto if_148_else
+push constant 0
+return
+goto if_148_end
+label if_148_else
+goto if_148_end
+label if_148_end
+push argument 1
 push constant 2
-push constant 3
-call Main.multiply2 2
+call Main.multiply 2
+pop local 1
+push argument 0
+push local 1
+call Main.divide 2
 pop local 0
+push argument 0
+push local 1
 push local 0
-call Output.printInt 1
-pop temp 0
-push constant 0
+call Math.multiply 2
+sub
+pop local 2
+push local 2
+push argument 1
+lt
+not
+if-goto if_194_else
+push local 0
+push constant 2
+call Main.multiply 2
 return
-
-function Main.multiply2 7
+goto if_194_end
+label if_194_else
+push local 0
+push constant 2
+call Main.multiply 2
+push constant 1
+add
+return
+goto if_194_end
+label if_194_end
+function Main.multiply2 3
 push constant 0
 pop local 0
 push constant 0
 pop local 1
 push constant 0
-pop local 6
-label while_satrt78
+pop local 2
+label while_satrt262
 push local 0
 push constant 16
 lt
 not
-if-goto while_end78
-label while_satrt85
+if-goto while_end262
+push local 0
+call Output.printInt 1
+pop temp 0
+call Output.println 0
+pop temp 0
+push constant 0
+pop local 1
+label while_satrt289
 push local 1
 push constant 16
 lt
 not
-if-goto while_end85
+if-goto while_end289
 push local 1
 call Output.printInt 1
 pop temp 0
+push local 2
+push constant 1
+add
+pop local 2
 push local 1
 push constant 1
 add
 pop local 1
-goto while_satrt85
-label while_end85
+goto while_satrt289
+label while_end289
 push local 0
 push constant 1
 add
 pop local 0
-goto while_satrt78
-label while_end78
-push local 6
+goto while_satrt262
+label while_end262
+push local 2
 return
-
-
-
-
-
 function Main.multiply 7
 push constant 0
 pop local 0
@@ -57,24 +157,26 @@ push constant 0
 pop local 1
 push constant 0
 pop local 6
-label while_satrt162
+label while_satrt373
 push local 0
 push constant 16
 lt
 not
-if-goto while_end162
+if-goto while_end373
 push argument 0
 push local 0
 call Main.bitof 2
 pop local 2
 push constant 0
 pop local 4
-label while_satrt186
+push constant 0
+pop local 1
+label while_satrt402
 push local 1
 push constant 16
 lt
 not
-if-goto while_end186
+if-goto while_end402
 push argument 1
 push local 1
 call Main.bitof 2
@@ -83,14 +185,11 @@ push local 2
 push local 3
 add
 pop local 5
-push local 1
-call Output.printInt 1
-pop temp 0
 push local 5
 push constant 1
 gt
 not
-if-goto if_220_else
+if-goto if_428_else
 push constant 1
 push local 1
 call Main.shiftLeft 2
@@ -99,16 +198,16 @@ push local 4
 push local 5
 add
 pop local 4
-goto if_220_end
-label if_220_else
-goto if_220_end
-label if_220_end
+goto if_428_end
+label if_428_else
+goto if_428_end
+label if_428_end
 push local 1
 push constant 1
 add
 pop local 1
-goto while_satrt186
-label while_end186
+goto while_satrt402
+label while_end402
 push local 4
 push local 0
 call Main.shiftLeft 2
@@ -121,19 +220,19 @@ push local 0
 push constant 1
 add
 pop local 0
-goto while_satrt162
-label while_end162
+goto while_satrt373
+label while_end373
 push local 6
 return
 function Main.bitof 1
 push constant 1
 pop local 0
-label while_satrt306
+label while_satrt514
 push argument 1
 push constant 0
 gt
 not
-if-goto while_end306
+if-goto while_end514
 push argument 1
 push constant 1
 sub
@@ -142,8 +241,8 @@ push local 0
 push local 0
 add
 pop local 0
-goto while_satrt306
-label while_end306
+goto while_satrt514
+label while_end514
 push argument 0
 push local 0
 and
@@ -152,22 +251,22 @@ push argument 1
 push local 0
 eq
 not
-if-goto if_335_else
+if-goto if_543_else
 push constant 1
 return
-goto if_335_end
-label if_335_else
+goto if_543_end
+label if_543_else
 push constant 0
 return
-goto if_335_end
-label if_335_end
+goto if_543_end
+label if_543_end
 function Main.shiftLeft 0
-label while_satrt364
+label while_satrt572
 push argument 1
 push constant 0
 gt
 not
-if-goto while_end364
+if-goto while_end572
 push argument 1
 push constant 1
 sub
@@ -176,7 +275,7 @@ push argument 0
 push argument 0
 add
 pop argument 0
-goto while_satrt364
-label while_end364
+goto while_satrt572
+label while_end572
 push argument 0
 return

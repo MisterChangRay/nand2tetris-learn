@@ -18,9 +18,12 @@
               <symbol> . </symbol>
               <identifier> divide </identifier>
               <symbol> ( </symbol>
-                    <integerConstant> 18 </integerConstant>
+                    <integerConstant> 6 </integerConstant>
                 <symbol> , </symbol>
-                    <integerConstant> 3 </integerConstant>
+                    <symbol> ( </symbol>
+                        <symbol> - </symbol>
+                          <integerConstant> 18000 </integerConstant>
+                    <symbol> ) </symbol>
               <symbol> ) </symbol>
           <symbol> ; </symbol>
           <keyword> do </keyword>
@@ -37,6 +40,94 @@
     <keyword> function </keyword>
     <keyword> int </keyword>
     <identifier> divide </identifier>
+    <symbol> ( </symbol>
+      <keyword> int </keyword>
+      <identifier> x </identifier>
+      <symbol> , </symbol>
+      <keyword> int </keyword>
+      <identifier> y </identifier>
+    <symbol> ) </symbol>
+      <symbol> { </symbol>
+        <keyword> var </keyword>
+        <keyword> int </keyword>
+        <identifier> flag </identifier>
+        <symbol> , </symbol>
+        <identifier> res </identifier>
+        <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> flag </identifier>
+          <symbol> = </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> x </identifier>
+            <symbol> &lt; </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> let </keyword>
+              <identifier> x </identifier>
+              <symbol> = </symbol>
+                  <symbol> - </symbol>
+                    <identifier> x </identifier>
+              <symbol> ; </symbol>
+              <keyword> let </keyword>
+              <identifier> flag </identifier>
+              <symbol> = </symbol>
+                  <integerConstant> 1 </integerConstant>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> y </identifier>
+            <symbol> &lt; </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> let </keyword>
+              <identifier> y </identifier>
+              <symbol> = </symbol>
+                  <symbol> - </symbol>
+                    <identifier> y </identifier>
+              <symbol> ; </symbol>
+              <keyword> let </keyword>
+              <identifier> flag </identifier>
+              <symbol> = </symbol>
+                  <integerConstant> 1 </integerConstant>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> let </keyword>
+          <identifier> res </identifier>
+          <symbol> = </symbol>
+              <identifier> Main </identifier>
+              <symbol> . </symbol>
+              <identifier> doDiv </identifier>
+              <symbol> ( </symbol>
+                    <identifier> x </identifier>
+                <symbol> , </symbol>
+                    <identifier> y </identifier>
+              <symbol> ) </symbol>
+          <symbol> ; </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> flag </identifier>
+            <symbol> = </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> return </keyword>
+                  <identifier> res </identifier>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> return </keyword>
+              <symbol> - </symbol>
+                <identifier> res </identifier>
+          <symbol> ; </symbol>
+      <symbol> } </symbol>
+    <keyword> function </keyword>
+    <keyword> int </keyword>
+    <identifier> doDiv </identifier>
     <symbol> ( </symbol>
       <keyword> int </keyword>
       <identifier> x </identifier>
