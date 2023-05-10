@@ -8,10 +8,30 @@
  * at the top-left of the screen.  
  */
 class Main {
-
+ static Array bitmap;
    function void main() {
       var int i;
-      let i = Main.divide((-18000) , 6);
+
+     let bitmap = Array.new(16);
+        let bitmap[0] = 1;
+		let bitmap[1] = 2;
+		let bitmap[2] = 4;
+		let bitmap[3] = 8;
+		let bitmap[4] = 16;
+		let bitmap[5] = 32;
+		let bitmap[6] = 64;
+		let bitmap[7] = 128;
+		let bitmap[8] = 256;
+		let bitmap[9] = 512;
+		let bitmap[10] = 1024;
+		let bitmap[11] = 2048;
+		let bitmap[12] = 4096;
+		let bitmap[13] = 8192;
+		let bitmap[14] = 16384;
+		let bitmap[15] = 16384 + 16384;
+
+      //let i = Main.multiply(3,28);
+      let i = Main.bitof(23, 3);
       do Output.printInt(i);
       return;
    }
@@ -111,22 +131,18 @@ class Main {
 
     }
 
-   function int bitof(int x, int index) {
-       var int i;
-       let i = 1;
+      function int bitof(int x, int index) {
+        var int res;
+        let res = bitmap[index];
 
-       while(index > 0) {
-            let index = index - 1;
-            let i = i + i;
-       }
-
-        let index = x & i;
-        if(index = i) {
+        let res = x & res;
+        if(res > 0) {
             return 1;
         } else {
             return 0;
         }
     }
+
 
     function int shiftLeft(int x, int shift) {
         while(shift > 0) {

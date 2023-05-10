@@ -1,12 +1,156 @@
   <keyword> class </keyword>
   <identifier> Math </identifier>
   <symbol> { </symbol>
+    <keyword> static </keyword>
+    <identifier> Array </identifier>
+    <identifier> bitmap </identifier>
+    <symbol> ; </symbol>
     <keyword> function </keyword>
     <keyword> void </keyword>
     <identifier> init </identifier>
     <symbol> ( </symbol>
     <symbol> ) </symbol>
       <symbol> { </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> = </symbol>
+              <identifier> Array </identifier>
+              <symbol> . </symbol>
+              <identifier> new </identifier>
+              <symbol> ( </symbol>
+                    <integerConstant> 16 </integerConstant>
+              <symbol> ) </symbol>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 1 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 1 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 2 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 2 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 4 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 3 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 8 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 4 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 5 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 32 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 6 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 64 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 7 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 128 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 8 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 256 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 9 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 512 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 10 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 1024 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 11 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 2048 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 12 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 4096 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 13 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 8192 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 14 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16384 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 15 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16384 </integerConstant>
+            <symbol> + </symbol>
+              <integerConstant> 16384 </integerConstant>
+          <symbol> ; </symbol>
           <keyword> return </keyword>
           <symbol> ; </symbol>
       <symbol> } </symbol>
@@ -86,47 +230,28 @@
       <symbol> { </symbol>
         <keyword> var </keyword>
         <keyword> int </keyword>
-        <identifier> i </identifier>
+        <identifier> res </identifier>
         <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> i </identifier>
+          <identifier> res </identifier>
           <symbol> = </symbol>
-              <integerConstant> 1 </integerConstant>
-          <symbol> ; </symbol>
-          <keyword> while </keyword>
-          <symbol> ( </symbol>
-              <identifier> index </identifier>
-            <symbol> &gt; </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-              <keyword> let </keyword>
-              <identifier> index </identifier>
-              <symbol> = </symbol>
+              <identifier> bitmap </identifier>
+              <symbol> [ </symbol>
                   <identifier> index </identifier>
-                <symbol> - </symbol>
-                  <integerConstant> 1 </integerConstant>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> i </identifier>
-              <symbol> = </symbol>
-                  <identifier> i </identifier>
-                <symbol> + </symbol>
-                  <identifier> i </identifier>
-              <symbol> ; </symbol>
-          <symbol> } </symbol>
+              <symbol> ] </symbol>
+          <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> index </identifier>
+          <identifier> res </identifier>
           <symbol> = </symbol>
               <identifier> x </identifier>
             <symbol> &amp; </symbol>
-              <identifier> i </identifier>
+              <identifier> res </identifier>
           <symbol> ; </symbol>
           <keyword> if </keyword>
           <symbol> ( </symbol>
-              <identifier> index </identifier>
-            <symbol> = </symbol>
-              <identifier> i </identifier>
+              <identifier> res </identifier>
+            <symbol> &gt; </symbol>
+              <integerConstant> 0 </integerConstant>
           <symbol> ) </symbol>
           <symbol> { </symbol>
               <keyword> return </keyword>
@@ -153,154 +278,76 @@
       <symbol> { </symbol>
         <keyword> var </keyword>
         <keyword> int </keyword>
-        <identifier> xi </identifier>
+        <identifier> sum </identifier>
         <symbol> , </symbol>
-        <identifier> yi </identifier>
+        <identifier> shifty </identifier>
         <symbol> , </symbol>
-        <identifier> xb </identifier>
+        <identifier> i </identifier>
         <symbol> , </symbol>
-        <identifier> yb </identifier>
-        <symbol> , </symbol>
-        <identifier> tmp1 </identifier>
-        <symbol> , </symbol>
-        <identifier> tmp2 </identifier>
-        <symbol> , </symbol>
-        <identifier> res </identifier>
+        <identifier> j </identifier>
         <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> xi </identifier>
+          <identifier> i </identifier>
           <symbol> = </symbol>
               <integerConstant> 0 </integerConstant>
           <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> yi </identifier>
+          <identifier> shifty </identifier>
           <symbol> = </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ; </symbol>
-          <keyword> let </keyword>
-          <identifier> res </identifier>
-          <symbol> = </symbol>
-              <integerConstant> 0 </integerConstant>
+              <identifier> y </identifier>
           <symbol> ; </symbol>
           <keyword> while </keyword>
           <symbol> ( </symbol>
-              <identifier> xi </identifier>
+              <identifier> i </identifier>
             <symbol> &lt; </symbol>
               <integerConstant> 16 </integerConstant>
           <symbol> ) </symbol>
           <symbol> { </symbol>
               <keyword> let </keyword>
-              <identifier> xb </identifier>
+              <identifier> j </identifier>
               <symbol> = </symbol>
-                  <identifier> Math </identifier>
-                  <symbol> . </symbol>
-                  <identifier> bitof </identifier>
-                  <symbol> ( </symbol>
-                        <identifier> x </identifier>
-                    <symbol> , </symbol>
-                        <identifier> xi </identifier>
-                  <symbol> ) </symbol>
+                  <identifier> x </identifier>
+                <symbol> &amp; </symbol>
+                  <identifier> bitmap </identifier>
+                  <symbol> [ </symbol>
+                      <identifier> i </identifier>
+                  <symbol> ] </symbol>
               <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> tmp1 </identifier>
-              <symbol> = </symbol>
-                  <integerConstant> 0 </integerConstant>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> yi </identifier>
-              <symbol> = </symbol>
-                  <integerConstant> 0 </integerConstant>
-              <symbol> ; </symbol>
-              <keyword> while </keyword>
+              <keyword> if </keyword>
               <symbol> ( </symbol>
-                  <identifier> yi </identifier>
-                <symbol> &lt; </symbol>
-                  <integerConstant> 16 </integerConstant>
+                  <symbol> ~ </symbol>
+                    <symbol> ( </symbol>
+                        <identifier> j </identifier>
+                      <symbol> = </symbol>
+                        <integerConstant> 0 </integerConstant>
+                    <symbol> ) </symbol>
               <symbol> ) </symbol>
               <symbol> { </symbol>
                   <keyword> let </keyword>
-                  <identifier> yb </identifier>
+                  <identifier> sum </identifier>
                   <symbol> = </symbol>
-                      <identifier> Math </identifier>
-                      <symbol> . </symbol>
-                      <identifier> bitof </identifier>
-                      <symbol> ( </symbol>
-                            <identifier> y </identifier>
-                        <symbol> , </symbol>
-                            <identifier> yi </identifier>
-                      <symbol> ) </symbol>
-                  <symbol> ; </symbol>
-                  <keyword> let </keyword>
-                  <identifier> tmp2 </identifier>
-                  <symbol> = </symbol>
-                      <identifier> xb </identifier>
+                      <identifier> sum </identifier>
                     <symbol> + </symbol>
-                      <identifier> yb </identifier>
-                  <symbol> ; </symbol>
-                  <keyword> if </keyword>
-                  <symbol> ( </symbol>
-                      <identifier> tmp2 </identifier>
-                    <symbol> &gt; </symbol>
-                      <integerConstant> 1 </integerConstant>
-                  <symbol> ) </symbol>
-                  <symbol> { </symbol>
-                      <keyword> let </keyword>
-                      <identifier> tmp2 </identifier>
-                      <symbol> = </symbol>
-                          <identifier> Math </identifier>
-                          <symbol> . </symbol>
-                          <identifier> shiftLeft </identifier>
-                          <symbol> ( </symbol>
-                                <integerConstant> 1 </integerConstant>
-                            <symbol> , </symbol>
-                                <identifier> yi </identifier>
-                          <symbol> ) </symbol>
-                      <symbol> ; </symbol>
-                      <keyword> let </keyword>
-                      <identifier> tmp1 </identifier>
-                      <symbol> = </symbol>
-                          <identifier> tmp1 </identifier>
-                        <symbol> + </symbol>
-                          <identifier> tmp2 </identifier>
-                      <symbol> ; </symbol>
-                  <symbol> } </symbol>
-                  <keyword> let </keyword>
-                  <identifier> yi </identifier>
-                  <symbol> = </symbol>
-                      <identifier> yi </identifier>
-                    <symbol> + </symbol>
-                      <integerConstant> 1 </integerConstant>
+                      <identifier> shifty </identifier>
                   <symbol> ; </symbol>
               <symbol> } </symbol>
               <keyword> let </keyword>
-              <identifier> tmp1 </identifier>
+              <identifier> shifty </identifier>
               <symbol> = </symbol>
-                  <identifier> Math </identifier>
-                  <symbol> . </symbol>
-                  <identifier> shiftLeft </identifier>
-                  <symbol> ( </symbol>
-                        <identifier> tmp1 </identifier>
-                    <symbol> , </symbol>
-                        <identifier> xi </identifier>
-                  <symbol> ) </symbol>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> res </identifier>
-              <symbol> = </symbol>
-                  <identifier> res </identifier>
+                  <identifier> shifty </identifier>
                 <symbol> + </symbol>
-                  <identifier> tmp1 </identifier>
+                  <identifier> shifty </identifier>
               <symbol> ; </symbol>
               <keyword> let </keyword>
-              <identifier> xi </identifier>
+              <identifier> i </identifier>
               <symbol> = </symbol>
-                  <identifier> xi </identifier>
+                  <identifier> i </identifier>
                 <symbol> + </symbol>
                   <integerConstant> 1 </integerConstant>
               <symbol> ; </symbol>
           <symbol> } </symbol>
           <keyword> return </keyword>
-              <identifier> res </identifier>
+              <identifier> sum </identifier>
           <symbol> ; </symbol>
       <symbol> } </symbol>
     <keyword> function </keyword>
@@ -316,95 +363,15 @@
       <symbol> { </symbol>
         <keyword> var </keyword>
         <keyword> int </keyword>
+        <identifier> q </identifier>
+        <symbol> , </symbol>
         <identifier> flag </identifier>
         <symbol> , </symbol>
+        <identifier> ax </identifier>
+        <symbol> , </symbol>
+        <identifier> ay </identifier>
+        <symbol> , </symbol>
         <identifier> res </identifier>
-        <symbol> ; </symbol>
-          <keyword> let </keyword>
-          <identifier> flag </identifier>
-          <symbol> = </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ; </symbol>
-          <keyword> if </keyword>
-          <symbol> ( </symbol>
-              <identifier> x </identifier>
-            <symbol> &lt; </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-              <keyword> let </keyword>
-              <identifier> x </identifier>
-              <symbol> = </symbol>
-                  <symbol> - </symbol>
-                    <identifier> x </identifier>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> flag </identifier>
-              <symbol> = </symbol>
-                  <integerConstant> 1 </integerConstant>
-              <symbol> ; </symbol>
-          <symbol> } </symbol>
-          <keyword> if </keyword>
-          <symbol> ( </symbol>
-              <identifier> y </identifier>
-            <symbol> &lt; </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-              <keyword> let </keyword>
-              <identifier> y </identifier>
-              <symbol> = </symbol>
-                  <symbol> - </symbol>
-                    <identifier> y </identifier>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> flag </identifier>
-              <symbol> = </symbol>
-                  <integerConstant> 1 </integerConstant>
-              <symbol> ; </symbol>
-          <symbol> } </symbol>
-          <keyword> let </keyword>
-          <identifier> res </identifier>
-          <symbol> = </symbol>
-              <identifier> Math </identifier>
-              <symbol> . </symbol>
-              <identifier> doDiv </identifier>
-              <symbol> ( </symbol>
-                    <identifier> x </identifier>
-                <symbol> , </symbol>
-                    <identifier> y </identifier>
-              <symbol> ) </symbol>
-          <symbol> ; </symbol>
-          <keyword> if </keyword>
-          <symbol> ( </symbol>
-              <identifier> flag </identifier>
-            <symbol> = </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-              <keyword> return </keyword>
-                  <identifier> res </identifier>
-              <symbol> ; </symbol>
-          <symbol> } </symbol>
-          <keyword> return </keyword>
-              <symbol> - </symbol>
-                <identifier> res </identifier>
-          <symbol> ; </symbol>
-      <symbol> } </symbol>
-    <keyword> function </keyword>
-    <keyword> int </keyword>
-    <identifier> doDiv </identifier>
-    <symbol> ( </symbol>
-      <keyword> int </keyword>
-      <identifier> x </identifier>
-      <symbol> , </symbol>
-      <keyword> int </keyword>
-      <identifier> y </identifier>
-    <symbol> ) </symbol>
-      <symbol> { </symbol>
-        <keyword> var </keyword>
-        <keyword> int </keyword>
-        <identifier> q </identifier>
         <symbol> ; </symbol>
         <keyword> var </keyword>
         <keyword> int </keyword>
@@ -412,15 +379,66 @@
         <symbol> , </symbol>
         <identifier> tmp2 </identifier>
         <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> flag </identifier>
+          <symbol> = </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> ax </identifier>
+          <symbol> = </symbol>
+              <identifier> Math </identifier>
+              <symbol> . </symbol>
+              <identifier> abs </identifier>
+              <symbol> ( </symbol>
+                    <identifier> x </identifier>
+              <symbol> ) </symbol>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> ay </identifier>
+          <symbol> = </symbol>
+              <identifier> Math </identifier>
+              <symbol> . </symbol>
+              <identifier> abs </identifier>
+              <symbol> ( </symbol>
+                    <identifier> y </identifier>
+              <symbol> ) </symbol>
+          <symbol> ; </symbol>
           <keyword> if </keyword>
           <symbol> ( </symbol>
-              <identifier> y </identifier>
+              <identifier> ay </identifier>
             <symbol> &gt; </symbol>
-              <identifier> x </identifier>
+              <identifier> ax </identifier>
           <symbol> ) </symbol>
           <symbol> { </symbol>
               <keyword> return </keyword>
                   <integerConstant> 0 </integerConstant>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> x </identifier>
+            <symbol> &lt; </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> let </keyword>
+              <identifier> flag </identifier>
+              <symbol> = </symbol>
+                  <integerConstant> 1 </integerConstant>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> y </identifier>
+            <symbol> &lt; </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> let </keyword>
+              <identifier> flag </identifier>
+              <symbol> = </symbol>
+                  <integerConstant> 1 </integerConstant>
               <symbol> ; </symbol>
           <symbol> } </symbol>
           <keyword> let </keyword>
@@ -430,7 +448,7 @@
               <symbol> . </symbol>
               <identifier> multiply </identifier>
               <symbol> ( </symbol>
-                    <identifier> y </identifier>
+                    <identifier> ay </identifier>
                 <symbol> , </symbol>
                     <integerConstant> 2 </integerConstant>
               <symbol> ) </symbol>
@@ -442,7 +460,7 @@
               <symbol> . </symbol>
               <identifier> divide </identifier>
               <symbol> ( </symbol>
-                    <identifier> x </identifier>
+                    <identifier> ax </identifier>
                 <symbol> , </symbol>
                     <identifier> tmp </identifier>
               <symbol> ) </symbol>
@@ -450,7 +468,7 @@
           <keyword> let </keyword>
           <identifier> tmp2 </identifier>
           <symbol> = </symbol>
-              <identifier> x </identifier>
+              <identifier> ax </identifier>
             <symbol> - </symbol>
               <symbol> ( </symbol>
                   <identifier> tmp </identifier>
@@ -462,10 +480,12 @@
           <symbol> ( </symbol>
               <identifier> tmp2 </identifier>
             <symbol> &lt; </symbol>
-              <identifier> y </identifier>
+              <identifier> ay </identifier>
           <symbol> ) </symbol>
           <symbol> { </symbol>
-              <keyword> return </keyword>
+              <keyword> let </keyword>
+              <identifier> res </identifier>
+              <symbol> = </symbol>
                   <identifier> Math </identifier>
                   <symbol> . </symbol>
                   <identifier> multiply </identifier>
@@ -478,7 +498,9 @@
           <symbol> } </symbol>
           <keyword> else </keyword>
           <symbol> { </symbol>
-              <keyword> return </keyword>
+              <keyword> let </keyword>
+              <identifier> res </identifier>
+              <symbol> = </symbol>
                   <identifier> Math </identifier>
                   <symbol> . </symbol>
                   <identifier> multiply </identifier>
@@ -489,6 +511,24 @@
                   <symbol> ) </symbol>
                 <symbol> + </symbol>
                   <integerConstant> 1 </integerConstant>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> if </keyword>
+          <symbol> ( </symbol>
+              <identifier> flag </identifier>
+            <symbol> = </symbol>
+              <integerConstant> 1 </integerConstant>
+          <symbol> ) </symbol>
+          <symbol> { </symbol>
+              <keyword> return </keyword>
+                  <symbol> - </symbol>
+                    <identifier> res </identifier>
+              <symbol> ; </symbol>
+          <symbol> } </symbol>
+          <keyword> else </keyword>
+          <symbol> { </symbol>
+              <keyword> return </keyword>
+                  <identifier> res </identifier>
               <symbol> ; </symbol>
           <symbol> } </symbol>
       <symbol> } </symbol>
@@ -513,14 +553,9 @@
           <keyword> let </keyword>
           <identifier> n </identifier>
           <symbol> = </symbol>
-              <identifier> Math </identifier>
-              <symbol> . </symbol>
-              <identifier> divide </identifier>
-              <symbol> ( </symbol>
-                    <identifier> x </identifier>
-                <symbol> , </symbol>
-                    <integerConstant> 2 </integerConstant>
-              <symbol> ) </symbol>
+              <identifier> x </identifier>
+            <symbol> / </symbol>
+              <integerConstant> 2 </integerConstant>
           <symbol> ; </symbol>
           <keyword> let </keyword>
           <identifier> o </identifier>
@@ -543,14 +578,9 @@
               <keyword> let </keyword>
               <identifier> t </identifier>
               <symbol> = </symbol>
-                  <identifier> Math </identifier>
-                  <symbol> . </symbol>
-                  <identifier> multiply </identifier>
-                  <symbol> ( </symbol>
-                        <identifier> n </identifier>
-                    <symbol> , </symbol>
-                        <identifier> n </identifier>
-                  <symbol> ) </symbol>
+                  <identifier> n </identifier>
+                <symbol> * </symbol>
+                  <identifier> n </identifier>
               <symbol> ; </symbol>
               <keyword> if </keyword>
               <symbol> ( </symbol>
@@ -585,14 +615,9 @@
                       <keyword> let </keyword>
                       <identifier> n </identifier>
                       <symbol> = </symbol>
-                          <identifier> Math </identifier>
-                          <symbol> . </symbol>
-                          <identifier> divide </identifier>
-                          <symbol> ( </symbol>
-                                <identifier> n </identifier>
-                            <symbol> , </symbol>
-                                <integerConstant> 2 </integerConstant>
-                          <symbol> ) </symbol>
+                          <identifier> n </identifier>
+                        <symbol> / </symbol>
+                          <integerConstant> 2 </integerConstant>
                       <symbol> ; </symbol>
                   <symbol> } </symbol>
                   <keyword> else </keyword>
@@ -601,6 +626,8 @@
                       <identifier> y </identifier>
                       <symbol> = </symbol>
                           <identifier> n </identifier>
+                        <symbol> - </symbol>
+                          <integerConstant> 1 </integerConstant>
                       <symbol> ; </symbol>
                       <keyword> return </keyword>
                           <identifier> y </identifier>

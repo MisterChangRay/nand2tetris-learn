@@ -1,6 +1,10 @@
   <keyword> class </keyword>
   <identifier> Main </identifier>
   <symbol> { </symbol>
+    <keyword> static </keyword>
+    <identifier> Array </identifier>
+    <identifier> bitmap </identifier>
+    <symbol> ; </symbol>
     <keyword> function </keyword>
     <keyword> void </keyword>
     <identifier> main </identifier>
@@ -12,18 +16,155 @@
         <identifier> i </identifier>
         <symbol> ; </symbol>
           <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> = </symbol>
+              <identifier> Array </identifier>
+              <symbol> . </symbol>
+              <identifier> new </identifier>
+              <symbol> ( </symbol>
+                    <integerConstant> 16 </integerConstant>
+              <symbol> ) </symbol>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 0 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 1 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 1 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 2 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 2 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 4 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 3 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 8 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 4 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 5 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 32 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 6 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 64 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 7 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 128 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 8 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 256 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 9 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 512 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 10 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 1024 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 11 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 2048 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 12 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 4096 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 13 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 8192 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 14 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16384 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
+          <identifier> bitmap </identifier>
+          <symbol> [ </symbol>
+              <integerConstant> 15 </integerConstant>
+          <symbol> ] </symbol>
+          <symbol> = </symbol>
+              <integerConstant> 16384 </integerConstant>
+            <symbol> + </symbol>
+              <integerConstant> 16384 </integerConstant>
+          <symbol> ; </symbol>
+          <keyword> let </keyword>
           <identifier> i </identifier>
           <symbol> = </symbol>
               <identifier> Main </identifier>
               <symbol> . </symbol>
-              <identifier> divide </identifier>
+              <identifier> bitof </identifier>
               <symbol> ( </symbol>
-                    <integerConstant> 6 </integerConstant>
+                    <integerConstant> 23 </integerConstant>
                 <symbol> , </symbol>
-                    <symbol> ( </symbol>
-                        <symbol> - </symbol>
-                          <integerConstant> 18000 </integerConstant>
-                    <symbol> ) </symbol>
+                    <integerConstant> 3 </integerConstant>
               <symbol> ) </symbol>
           <symbol> ; </symbol>
           <keyword> do </keyword>
@@ -505,47 +646,28 @@
       <symbol> { </symbol>
         <keyword> var </keyword>
         <keyword> int </keyword>
-        <identifier> i </identifier>
+        <identifier> res </identifier>
         <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> i </identifier>
+          <identifier> res </identifier>
           <symbol> = </symbol>
-              <integerConstant> 1 </integerConstant>
-          <symbol> ; </symbol>
-          <keyword> while </keyword>
-          <symbol> ( </symbol>
-              <identifier> index </identifier>
-            <symbol> &gt; </symbol>
-              <integerConstant> 0 </integerConstant>
-          <symbol> ) </symbol>
-          <symbol> { </symbol>
-              <keyword> let </keyword>
-              <identifier> index </identifier>
-              <symbol> = </symbol>
+              <identifier> bitmap </identifier>
+              <symbol> [ </symbol>
                   <identifier> index </identifier>
-                <symbol> - </symbol>
-                  <integerConstant> 1 </integerConstant>
-              <symbol> ; </symbol>
-              <keyword> let </keyword>
-              <identifier> i </identifier>
-              <symbol> = </symbol>
-                  <identifier> i </identifier>
-                <symbol> + </symbol>
-                  <identifier> i </identifier>
-              <symbol> ; </symbol>
-          <symbol> } </symbol>
+              <symbol> ] </symbol>
+          <symbol> ; </symbol>
           <keyword> let </keyword>
-          <identifier> index </identifier>
+          <identifier> res </identifier>
           <symbol> = </symbol>
               <identifier> x </identifier>
             <symbol> &amp; </symbol>
-              <identifier> i </identifier>
+              <identifier> res </identifier>
           <symbol> ; </symbol>
           <keyword> if </keyword>
           <symbol> ( </symbol>
-              <identifier> index </identifier>
-            <symbol> = </symbol>
-              <identifier> i </identifier>
+              <identifier> res </identifier>
+            <symbol> &gt; </symbol>
+              <integerConstant> 0 </integerConstant>
           <symbol> ) </symbol>
           <symbol> { </symbol>
               <keyword> return </keyword>

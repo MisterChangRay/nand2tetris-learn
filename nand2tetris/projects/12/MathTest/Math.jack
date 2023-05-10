@@ -8,10 +8,28 @@
  * Note: Jack compilers implement multiplication and division using OS method calls.
  */
 class Math {
+    static Array bitmap;
 
 
     /** Initializes the library. */
     function void init() {
+        let bitmap = Array.new(16);
+        let bitmap[0] = 1;
+		let bitmap[1] = 2;
+		let bitmap[2] = 4;
+		let bitmap[3] = 8;
+		let bitmap[4] = 16;
+		let bitmap[5] = 32;
+		let bitmap[6] = 64;
+		let bitmap[7] = 128;
+		let bitmap[8] = 256;
+		let bitmap[9] = 512;
+		let bitmap[10] = 1024;
+		let bitmap[11] = 2048;
+		let bitmap[12] = 4096;
+		let bitmap[13] = 8192;
+		let bitmap[14] = 16384;
+		let bitmap[15] = 16384 + 16384;
         return;
     }
 
@@ -31,22 +49,19 @@ class Math {
         return x;
     }
 
-    function int bitof(int x, int index) {
-       var int i;
-       let i = 1;
+    
+      function int bitof(int x, int index) {
+        var int res;
+        let res = bitmap[index];
 
-       while(index > 0) {
-            let index = index - 1;
-            let i = i + i;
-       }
-
-        let index = x & i;
-        if(index = i) {
+        let res = x & res;
+        if(res > 0) {
             return 1;
         } else {
             return 0;
         }
     }
+
 
     /** Returns the product of x and y. 
      *  When a Jack compiler detects the multiplication operator '*' in the 
@@ -54,34 +69,20 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
    function int multiply(int x, int y) {
-        var int xi, yi, xb, yb, tmp1, tmp2, res;
-        let xi = 0;
-        let yi = 0;
-        let res = 0;
+        var int sum, shifty, i, j;
+        let i = 0;
+        let shifty = y;
 
-        while(xi < 16) {
-            let xb = Math.bitof(x, xi);
-
-            let tmp1 = 0;
-            let yi = 0;
-            while(yi < 16) {
-                let yb = Math.bitof(y, yi);
-                let tmp2 = xb + yb;
-
-                if(tmp2 > 1) {
-                     
-                     let tmp2 = Math.shiftLeft(1, yi);
-
-                     let tmp1 = tmp1 + tmp2;
-                }
-                let yi = yi + 1;
+        while(i < 16) {
+            
+            let j = x & bitmap[i] ;
+            if(~(j = 0)) {
+                let sum = sum + shifty;
             }
-
-            let tmp1 = Math.shiftLeft(tmp1, xi);
-            let res = res + tmp1;
-            let xi = xi + 1;
+            let shifty = shifty + shifty;
+            let i = i + 1;
         }
-        return res;          
+        return sum;          
 
     }
 
@@ -91,39 +92,43 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     
+
+    
     function int divide(int x, int y) {
-        var int flag, res;
+        var int q, flag, ax, ay ,res;
+        var int tmp , tmp2;
         let flag = 0;
+
+        let ax = Math.abs(x);
+        let ay = Math.abs(y);
+        if(ay > ax) {
+            return 0;
+        }
+
         if(x < 0) {
-            let x = -x;
             let flag = 1;
         }
         if(y < 0) {
-            let y = -y;
             let flag = 1;
         }
-        let res = Math.doDiv(x, y);
-        if(flag = 0) {
-            return res;
-        }
-        return -res;
-    }
-    
-    function int doDiv(int x, int y) {
-        var int q;
-        var int tmp , tmp2;
-        if(y > x) {
-            return 0;
-        }
-        
-        let tmp = Math.multiply(y, 2);
-        let q = Math.divide(x, tmp);
+  
+        let tmp = Math.multiply(ay, 2);
+        let q = Math.divide(ax, tmp);
 
-        let tmp2 =  x - (tmp * q);
-        if(tmp2  < y) {
-            return Math.multiply(q, 2);
+
+        let tmp2 =  ax -(tmp * q);
+        if(tmp2  < ay) {
+         
+            let res =  Math.multiply(q, 2);
         } else {
-            return Math.multiply(q, 2) + 1;
+          
+            let res = Math.multiply(q, 2) + 1;
+        }
+
+        if(flag = 1) {
+            return -res;
+        } else {
+            return res;
         }
     }
 
@@ -131,12 +136,12 @@ class Math {
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
         var int n, t, o, y;
-        let n = Math.divide(x, 2);
+        let n = x / 2;
         let o = 0;
 
         let y = 0;
         while(n > -1) {
-            let t = Math.multiply(n, n);
+            let t = n * n;
             if(t = x) {
                 let y = n;
                 return y;
@@ -144,9 +149,9 @@ class Math {
 
             if(t > x) {
                 if(o = 0) {
-                    let n = Math.divide(n, 2);
+                    let n = n / 2;
                 } else {
-                    let y = n;
+                    let y = n - 1;
                     return y;
                 }
             }
